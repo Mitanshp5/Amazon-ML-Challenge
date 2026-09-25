@@ -1,0 +1,13 @@
+# Datasets are huge (~2.5 GB of TSVs) — never push to GitHub.
+# Keep code, docs, plans, and small utils; data stays local.
+*.tsv
+**/dataset/
+**/output/
+*.DS_Store
+__pycache__/
+*.pyc
+.venv/
+venv/
+*.parquet
+*.pkl
+*.bin
