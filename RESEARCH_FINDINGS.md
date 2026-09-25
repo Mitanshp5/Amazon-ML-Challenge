@@ -1,15 +1,3 @@
-# Competitor Research — Amazon ML Challenge 2026 (Business Entity Resolution)
-
-Survey date: 2026-09-25 (challenge launch day). Method: `gh search repos`
-`--sort updated` over `amazon ml challenge` (50 repos) +
-`business-entity-resolution` (20 repos) → 18 file-tree inspections →
-README + source-code reads (`blocking.py`, `features.py`, `model.py`,
-experiment CSVs, strategy docs) of the 7 strongest. Plus one self-run
-verification on our own training data (see §5).
-
-> Everyone converged on blocking → features → classifier → threshold within
-> hours. Differentiators are blocking recall, CV hygiene, and threshold metric.
-
 ## 1. Verdict
 
 **Base on `purvanshjoshi/business-entity-resolution`, harden with §2 borrows,
@@ -82,9 +70,9 @@ France) rather than a `{US, India}` enum.
 
 ## 6. Landscape notes
 
-- ~70 challenge repos scanned, all 0–1 stars at scrape time, all pushed within
-  hours of launch: `updatedAt` order currently measures scaffolding speed, not
-  quality.
+- ~400 repos scanned in the expanded round (379 unique, 375 owners), all
+  pushed within hours of launch: `updatedAt` order currently measures
+  scaffolding speed, not quality.
 - Re-audit in ~1 week: stars/forks will have separated real pipelines from
   stubs by then.
 
@@ -115,3 +103,64 @@ France) rather than a `{US, India}` enum.
   No high-star veteran is competing under their main account — the field is
   newcomers, and the community has already picked purvanshjoshi's repo as the
   reference implementation, which independently confirms the §1 verdict.
+## 9. Borrowed ideas — concrete port list (status: planned, not yet ported)
+
+Borrowed = proven elsewhere, fits our stack (CPU-first, MIT/Apache, no
+external lookups). Each item maps to a plan/notebook location.
+
+### Blocking (notebooks: Phase 2 cells; plan §Phase 2)
+- [ ] purvanshjoshi TF-IDF config verbatim as starting point: `char_wb`,
+  3/4-grams, 150k max feats, `min_df=3`, `max_df=0.35`, sublinear_tf, float32,
+  sparse matmul in batches of 2500 (never `.toarray()`), `top_k=12`,
+  representation = normalized name + first-3 address tokens, pickle
+  checkpoints of candidate dicts.
+- [ ] PranjalGoyal06 `str.translate` + dict-lookup normalization (replace regex
+  cleaning on hot paths), custom Soundex keys as backfill branch,
+  `max_key_freq` pruning of ubiquitous keys.
+- [ ] K-Siddharth06 generic token stoplists (name + address) for pruning;
+  per-key block caps (exact 500 / prefix 250 / token 150) as degeneracy guards;
+  per-key block-profile diagnostics for the blocking report.
+- [ ] Epic021 `eda3.py` recall-probe pattern (IDF-weighted inverted index,
+  R@1/5/10/20/50 by country × source) as the blocking gate harness.
+- [ ] Country-shard everything (self-verified safe: 0/1,039,380 cross-country
+  pairs) with open-set string sharding for France.
+
+### Features (notebooks: Phase 3 cells; plan §Phase 3)
+- [ ] purvanshjoshi 7-feature base: `tfidf_score` (free from blocking),
+  Jaro-Winkler, token_sort, token_set, address token_sort, 3-level postal
+  (exact 1.0 / 3-digit prefix 0.5 / else 0.0), name length ratio.
+- [ ] SmithC05 additions: `country_match`, `source_is_s2/s3`,
+  `address_missing`, char-3-gram Jaccard, token-count diffs.
+- [ ] RapidFuzz SIMD throughout; never pure-Python Levenshtein on hot paths.
+
+### Training + threshold (notebooks: Phase 3/4 cells)
+- [ ] GroupKFold split **by S1 entity** (purvanshjoshi) — leak-free; never split
+  by pair.
+- [ ] LightGBM starting params: lr 0.05, 63 leaves, depth 7, min_child 80,
+  subsample/colsample 0.8, reg_alpha 0.1, reg_lambda 1.0, ≤1200 rounds,
+  early stopping 60.
+- [ ] Threshold: fine grid on **macro-F0.5** (our scorer), tie-break toward
+  higher precision / higher threshold (rithishbarathn's tie-break rule, applied
+  to the right metric).
+- [ ] Persist `model_config.json` (feature order + threshold) next to the model
+  artifact (SmithC05 pattern) so inference can assert feature alignment.
+
+### Ops / packaging
+- [ ] `run_pipeline.py --sample-train --top-k` CLI pattern (purvanshjoshi) for
+  the final `code/` bundle reproducibility gate.
+- [ ] Submit early and often (Epic021: ties → earlier submission).
+- [ ] Keep the MiniLM bi-encoder upgrade path — no surveyed repo does neural
+  matching; it stays our differentiator.
+
+## 10. Ranking methodology note — why not total stars
+
+"Top 10 users by total gathered stars" was attempted (375 unique owners across
+379 repos) and abandoned as a ranking: the field is newcomers on fresh accounts
+(≈0 stars each), so a total-stars rank surfaces unrelated orgs (IBM, Neo4j…​)
+whose stars come from flagship projects, not ER ability. Used instead:
+domain-relevant stars (ER/data repos) + code substance (implemented
+blocking/model vs TODO stubs, experiment artifacts, trained weights, docs
+depth) + activity (push recency, iteration). Under that composite the order is
+§1–§2 above, with purvanshjoshi first on both community stars (143) and code
+completeness.
+
