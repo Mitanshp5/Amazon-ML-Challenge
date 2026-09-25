@@ -152,7 +152,57 @@ external lookups). Each item maps to a plan/notebook location.
 - [ ] Keep the MiniLM bi-encoder upgrade path — no surveyed repo does neural
   matching; it stays our differentiator.
 
-## 10. Ranking methodology note — why not total stars
+## 10. Ranking methodology note — total stars, done right
+
+First attempt (sequential, 2.2s pacing) was aborted as too slow; second attempt
+returned all zeros due to a `stargazersCount` (GraphQL) vs `stargazers_count`
+(REST) field-name bug; both were fixed and the full ranking completed over 377
+repos / 373 owners in §11. Totals are first-100-repos sums (orgs with 100+
+repos undercounted — immaterial for ranking here). Standing conclusion: the
+challenge field is newcomers, so fame-rank surfaces industrial/academic ER
+repos, not competitors — mined above for transferable ideas rather than
+threats.
+
+## 11. Top-20 owner deep-dive (codebases actually read, 2026-09-25)
+
+377 unique owners ranked by total stars across all their projects (fixed the
+`stargazers_count` snake_case bug that zeroed the first attempt). Rank → owner
+(total stars) → verdict on their ER-relevant repo (code read, not README-only):
+
+| # | Owner (total ★) | Repo read | Verdict |
+|---|---|---|---|
+| 1 | ing-bank (5007) | EntityMatchingModel | **Highest-value established codebase.** MIT headers confirmed. Complementary indexers (TF-IDF word+char cosine via `sparse_dot_topn` + sorted neighbourhood + first/first2/first3 char keys), abbreviation finders (merged initials `FC Barcelona`, CamelCase `PetroBras`, punctuated initials), rank-based + legal-entity features, millions-vs-millions distributed. Borrow: abbreviation regexes, complementary-indexer design, `sparse_dot_topn`. |
+| 2 | IBM (3277) | table-representation-evals | Tabular-embedding benchmark harness (row-similarity MAP). Infra, not a solution. Skip. |
+| 3 | davidmoten (1235) | viem | Java lib for volatile-identifier tracking (vessels/craft). Wrong domain. Skip. |
+| 4 | tshu-w (516) | ComEM | COLING-2025 LLM matching paper; blocking via `retriv` SparseRetriever + topK recall print. LLM matchers violate our compute/license posture; the cached-index recall-probe pattern is already covered by Epic eda3. Skip. |
+| 5 | os-climate (415) | financial-entity-cleaner | **Gold for normalization.** Per-country legal-form JSONs from GLEIF ISO-20275 (CC0) — `fr_legal_forms.json` EXISTS (SAS/SICAV/SICAF + dotted variants). Named ordered cleaning-rules dict. Repo is archived (borrow data + pattern, not code). Disclosure note: static open-code-list maps = same category as hand-written abbrev maps; document in methodology. |
+| 6 | wbsg-uni-mannheim (402) | PyDI / MaDI-Bench / billiger-de / auto-labeling | Academic group (Mannheim DWS). PyDI blocking modules (standard/token/sorted-neighbourhood/embedding) are clean reference implementations; benchmarks are product-domain. Skim PyDI blocking if ours stalls. |
+| 7 | machuangtao (342) | CE-RAG4EM | SIGMOD LLM-RAG blocking on Wikidata. External-KG retrieval = fair-play grey zone + wrong stack. Skip. |
+| 8 | purvanshjoshi (194) | business-entity-resolution | Base pick (§1). No change. |
+| 9 | magicsunday (181) | webtrees-obituary-matcher | PHP people-matcher (GPL-3.0 — license-incompatible anyway). Skip. |
+| 10 | GaganB982006Hello (161) | Amazon-ML-Challenge-2026 | Tree fetch failed; no readable code. Skip. |
+| 11 | abhishekck31 (158) | Amazon-ML-Challenge | **Best challenge-repo methodology.** Entity-level macro-F0.5 documented as distinct from sklearn macro (names the exact trap), DUAL thresholds (T_singleton, T_match), fully vectorized blocking (`groupby.indices`, no `iterrows`), 1:6 hard negatives from blocking candidates, S1-entity splits, jellyfish, tests. Borrow: dual-threshold scheme, hard-negative ratio, metrics doc wording. |
+| 12 | rodrigolourencofarinha (143) | Entity-Matching-Demo | Academic comparison (exact vs fuzzy vs LLM) on firm data. Pedagogy, not pipeline. Skip. |
+| 13 | neo4j-field (140) | entity_matching_tool | Electron+Neo4j dedup app. Wrong stack. Skip. |
+| 14 | knoxiboy (98) | BUSINESS-ENTITY-RESOLUTION-CHALLENGE | Dotted-variant suffix map (`l.l.c.`, `d/b/a`, `[limited]`), India addr abbrevs (`nagar`, `marg`), `addr_missing` flag, and a real baseline number (54% recall on exact+2-token union — more evidence key-union blocking underperforms). Anti-pattern: `difflib.SequenceMatcher` (slow; RapidFuzz instead). |
+| 15 | OnkarNanaware (72) | Amazon-ml-challenge | SageMaker/S3 multi-account ops pattern (account-prefix config). Our sharing layer already covers this via Drive; marginal. Blocking config (tfidf_top_k 50, trigrams) noted. |
+| 16 | saketlab (72) | alethia | Exact-match short-circuit + null-preservation at inference (cheap precision win), token_sort identity documented. Borrow the short-circuit pattern. R/Python dual — take pattern only. |
+| 17 | Resham1424 (52) | amazon-ml-challenge | Empty/gone. Nothing. |
+| 18 | VegirajuMahaveerVarma (41) | amazon-ml-challenge- | NFKC+casefold normalization utils, suffix-strip loop, postal/house-number regexes, token signatures. Dataset via Git LFS (do not copy that practice). Borrow: `longest_token` / `token_signature` helpers. |
+| 19 | Hamza-Faarooq (37) | Amazon_ML_Challenge | Zip + README only. Nothing. |
+| 20 | AaryaSingh5 (30) | Amazon-ml-challenge | Claims >98% recall (unverified), open-set country symmetry, staged parquet pipeline. Process-heavy; borrow nothing until numbers appear. |
+
+Net vs §1 verdict: base pick unchanged (purvanshjoshi #8 by fame, #1 by challenge-code completeness). abhishekck31 (#11) joins as co-reference for threshold/metrics/training-data discipline; ing-bank EMM (#1) as the industrial reference for indexing + abbreviation handling; os-climate (#5) solves the French legal-form gap with an authoritative table.
+
+## 12. Borrowed ideas — round-2 additions (§9 still stands, these extend it)
+
+- [ ] EMM abbreviation finders (merged-initials / CamelCase / punctuated-initials regexes) as normalization features for DBA/trade-name noise.
+- [ ] EMM complementary-indexer design: TF-IDF cosine (via `sparse_dot_topn`) + sorted neighbourhood + short-prefix keys, unioned — with per-branch recall measured (Epic eda3 harness).
+- [ ] os-climate `fr_legal_forms.json` (GLEIF/ISO-20275, CC0) as the French suffix table; disclose as open-code-list map in methodology.
+- [ ] abhishekck31 dual thresholds (`T_singleton`, `T_match`) tuned on entity-level macro-F0.5; 1:6 hard negatives mined from blocking candidates; S1-entity splits; `metrics.py`-style docstring distinguishing entity-macro from sklearn macro.
+- [ ] alethia inference short-circuit: exact normalized-name matches accepted before scoring; null-likes preserved as no-match rows.
+- [ ] knoxiboy dotted-variant suffix surfaces (`l.l.c.`, `d/b/a`) + `nagar`/`marg` addr abbrevs; `addr_missing` flag (already planned — confirmed by second source).
+- [ ] Vegiraju `token_signature` / `longest_token` helpers as backfill blocking keys.
 
 "Top 10 users by total gathered stars" was attempted (375 unique owners across
 379 repos) and abandoned as a ranking: the field is newcomers on fresh accounts
