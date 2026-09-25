@@ -3,6 +3,10 @@
 *.tsv
 **/dataset/
 **/output/
+**/output-local/
+**/output-a100/
+**/checkpoints/
+**/models/
 *.DS_Store
 .ipynb_checkpoints/
 __pycache__/
