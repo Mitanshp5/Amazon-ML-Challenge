@@ -9,6 +9,8 @@
 **/models/
 # Local sync state (never commit)
 sync_manifest.json
+# Competitor research notes (local only, never push)
+RESEARCH_FINDINGS.md
 *.DS_Store
 .ipynb_checkpoints/
 __pycache__/
