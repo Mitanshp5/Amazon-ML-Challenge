@@ -67,15 +67,15 @@ validator `student_resource/student_resource/utils/validate_submission.py`.
   averaged over all S1. Singleton scoring: 1.0 if correctly empty, 0.0 if any FP
   predicted. F0.5 weights precision ~2x over recall: **prefer high threshold**.
 - `matching_results.tsv` is the only file scored on the public/private
-  leaderboard. HOWEVER, per the latest update, **final rankings go beyond the
-  leaderboard**: reviewers audit `candidate_pairs.tsv` + the code that produces
-  it, and **smaller mean candidate set per S1 ranks higher** at equal/close
-  F0.5. Blocking efficiency is therefore a first-class objective, not just a
-  recall gate.
-- `candidate_pairs.tsv` is **part of the final submission** (`output/` folder in
-  the zip) and must be the exact pre-model candidate set (audited for recall
-  ceiling, reduction ratio, and mean K; `matching` should be a subset of
-  `candidates`).
+  leaderboard. `candidate_pairs.tsv` ships in the final zip and is used to
+  analyse blocking quality (recall ceiling, reduction ratio) and verify the
+  pipeline; top teams' packages are reviewed before final rankings are
+  confirmed. Per the PDF this is an audit for sanity/fair-play, not a stated
+  tie-break on K size — so **recall ceiling is the primary blocking objective**
+  and mean K is a sanity bound (keep it under ~40-50, don't minimize it at
+  recall's expense). A match never retrieved can never be predicted.
+- `candidate_pairs.tsv` must be the exact pre-model candidate set
+  (`matching` should be a subset of `candidates`).
 - Both files: tab-separated, `source1_entity_id` + ID-list column, one row per
   test S1, S2-/S3-only IDs, no intra-list duplicates, no duplicate S1 rows.
 - Validate locally with `utils/validate_submission.py` (stdlib only), including
@@ -83,27 +83,49 @@ validator `student_resource/student_resource/utils/validate_submission.py`.
 - Fair play: **no external DB/API/lookup, no geocoding APIs, no internet
   augmentation**. Final model must be MIT/Apache-2.0 licensed, <= 8B params.
 
+### 1.6 Organizer guidelines shared in chat (kept verbatim in-plan)
+> - Update: `candidate_pairs.tsv` is part of your final submission.
+> - Blocking has to scale. Amazon resolves business entities across billions of
+>   records, so comparing every record with every other one is not an option.
+>   Your blocking / candidate-generation step must cut the search space to a
+>   small candidate set per Source 1 entity.
+> - Candidate generation counts toward the final ranking. We will review your
+>   `candidate_pairs.tsv` and the code that produces it when deciding final
+>   rankings, alongside your `matching_results.tsv` score. The approach that
+>   generates a smaller candidate set per Source 1 entity will be ranked higher
+>   in the final evaluation beyond the public/private leaderboard.
+> - Please make sure to go through the problem statement carefully and review
+>   all the requirements, guidelines, and submission details before getting
+>   started.
+>
+> How this plan reconciles §1.5 with the above: the PDF frames candidates as a
+> quality/verify audit, while this update adds an explicit smaller-K preference
+> on top. So the blocking objective is lexicographic — (1) hit the recall
+> ceiling target (≥95%; a lost match caps scored F0.5), then (2) minimize mean K
+> subject to holding that recall (rank-merge + adaptive caps, recall@K curve to
+> prove it). Never trade recall for K.
+
 ---
 
 ## 2. Solution Architecture
 
 ```
 S1/S2/S3 TSVs
-  -> Normalization (unicode, abbrev, suffix, PIN/ZIP extraction)
-  -> Scalable blocking (country-sharded PIN block + TF-IDF ANN + rank-merge,
-     adaptive K, mean K target <=15-20) — must scale to billions: no Cartesian,
-     chunked/sharded ANN, logged build time
-  -> candidate_pairs.tsv  [FINAL SUBMISSION ARTIFACT — ranked on recall ceiling
-     + reduction ratio + mean/median/p90 K; smaller K preferred at equal F0.5]
+  -> Normalization (unicode, abbrev incl. French table, suffix, PIN/ZIP extraction)
+  -> Blocking (country-sharded FAISS ANN primary + PIN/token backfill +
+     rank-merge, adaptive K capped ~25-40) — sized for the real N (low millions
+     per shard): chunked queries, no Cartesian, logged build/query time
+  -> candidate_pairs.tsv  [recall ceiling >=95% primary; mean/median/p90 K and
+     reduction ratio reported as sanity bounds, not minimized at recall's expense]
   -> Pairwise feature engineering (name/addr/country/source signals)
   -> Matcher: LightGBM baseline -> MiniLM bi-encoder -> cross-encoder rerank (top-10)
   -> F0.5 thresholding + singleton rule (max_score < tau -> empty)
   -> matching_results.tsv -> validate_submission.py -> zip package
 ```
 
-> Ranking rule (update): beyond leaderboard F0.5, reviewers compare
-> `candidate_pairs.tsv` efficiency — same recall at smaller mean K wins. Every
-> blocking decision below optimizes the recall-per-K Pareto frontier.
+> Blocking rule (§1.6): recall ceiling first, then smallest K that holds it.
+> Rank-merge/adaptive caps exist to minimize mean K subject to the recall target
+> — never the reverse.
 
 ---
 
@@ -113,57 +135,68 @@ S1/S2/S3 TSVs
 1. Stratified 90/10 split on **train S1 IDs** by
    `(country x match-count bucket x singleton flag)`.
 2. Keep the full S2/S3 pool as the retrieval universe (no S1 leakage).
-3. Implement an exact macro-F0.5 scorer mirroring the leaderboard formula.
+3. Implement an exact macro-F0.5 scorer mirroring the leaderboard formula, and
+   **unit-test it against the PDF's worked example** (P=0.667, R=1.0 -> F0.5=0.714)
+   before trusting it for any threshold tuning.
 4. France-robustness proxies (since France is test-only):
    - Report per-country F0.5 (US / India) separately.
    - Country-ablation run: drop the `country_match` feature and confirm no collapse.
    - Optional: synthetic noise probe (accent/typo injection) on val names.
 5. All threshold and model selection happens on this val split only.
 
+### Phase 0.5 — Walking skeleton (before real blocking)
+1. Trivial blocking: exact normalized-name + PIN match only, on a small sample
+   (e.g. 5k S1).
+2. Push the sample through the *entire* pipeline: feature building -> LightGBM
+   stub -> thresholding -> `matching_results.tsv` / `candidate_pairs.tsv` ->
+   `validate_submission.py --check-ids`.
+3. Confirm PASS end-to-end before investing in the real blocking algorithm.
+   Cheap insurance against a late-discovered format/integration bug.
+
 ### Phase 1 — Normalization (offline, no external calls)
 1. Unicode NFKD + strip accents, lowercase, whitespace/punctuation canonicalization.
-2. `&` -> `and`; expand abbreviations via in-repo dict
-   (`corp/corporation, pvt/private, ltd/limited, rd/road, st/street, ave/avenue`, ...).
+2. `&` -> `and`; abbreviation expansion via in-repo dict covering **US/India AND
+   France** (`corp/corporation, pvt/private, ltd/limited, rd/road, st/street,
+   ave/avenue` plus French `sarl, sas, sa, eurl, rue, bd/boulevard, av/avenue,
+   cedex`, etc.). France is 15% of test with 0% train coverage — a US/India-only
+   dict would leave exactly the unseen-country slice with weaker normalization.
 3. Legal-suffix handling: map to canonical form AND keep a separate
    `suffix_match` binary feature (do not silently delete signal).
-4. Address parsing (regex only, no geocoder): extract PIN/ZIP (5-6 digit),
-   building numbers, and normalized city/state tokens when present.
+4. Address parsing (regex only, no geocoder): extract PIN/ZIP (5-6 digit,
+   incl. French 5-digit postal codes), building numbers, and normalized
+   city/state/commune tokens where present.
 5. Country: normalize case/whitespace only; compare as strings; never enumerate
    the label set in code.
 
-### Phase 2 — Blocking / candidate generation (SCALABLE + EFFICIENCY-RANKED)
-Goal: billion-scale-ready blocking that maximizes **recall per unit K**.
-Target: **>=95% recall ceiling @ mean K <=15-20** (median lower; report p90 too),
-with logged build time and reduction ratio. A wide `K<=50` union is only a
-fallback baseline — the ranked solution must beat it on mean K at equal recall.
+### Phase 2 — Blocking / candidate generation (RECALL-FIRST, EFFICIENCY-SECOND)
+Goal: **>=95% recall ceiling** on val; report mean/median/p90 K and reduction
+ratio as sanity bounds — do not tune K down at recall's expense. Real N is low
+millions per shard (~60% of S1/S2/S3 in the US shard alone), not billions, so
+size everything for that.
 
 1. **Shard by normalized `country` string value (open-set).** France then shards
-   automatically at test time with no code change. Sharding is also what makes
-   this scale: per-shard ANN indexes, chunked S1 queries (e.g. 50k/chunk),
-   streaming writes. Log per-shard index size, build time, and query throughput
-   for the methodology doc (evidence of billion-scale readiness).
-2. **Primary signal (one strong index, not a wide union):** sparse TF-IDF
-   `char_wb 3-5g` on `normalized_name + normalized_address`, cosine retrieval
-   via chunked sklearn `NearestNeighbors` (FAISS on GPU box if available).
-   This single index should supply the bulk of candidates to keep K small.
-3. **Surgical backfill only (not blind union):** exact PIN/ZIP block
-   (high precision, especially India) + first-significant-token block ONLY for
-   S1 where the ANN top score is low-confidence or PIN is missing. This is what
-   keeps mean K down versus unioning everything for every S1.
-4. **Rank-merge + adaptive K (the efficiency win):** fuse branch scores
-   (ANN cosine first, PIN/token as bonus), sort per S1, and keep top-N with an
-   adaptive cap — confident S1 (top-1 score >> top-2, exact PIN+name hit) keep
-   K≈5-10; uncertain S1 expand to K≈25. Never emit a fixed 50 for everyone.
-   Dedupe per S1, persist the **exact post-merge set** as `candidate_pairs.tsv`.
-5. **Gate (must pass before any matcher work):** on val report recall ceiling,
-   **mean/median/p90 K, reduction ratio vs Cartesian, and recall@K curve
-   (5/10/20/30)** plus blocking runtime. If recall < 95%, improve normalization
-   or ANN quality first (better text representation beats raising K — raising K
-   hurts the final efficiency ranking). If mean K > 20 at target recall, tighten
-   backfill thresholds and rank-merge cutoff, not the matcher.
-6. **Scale proof:** no pair matrix ever materialized; chunked ANN; memory bounded
-   per shard/chunk. Record peak RAM and wall-clock on train-scale data as the
-   billion-scale proxy in the doc.
+   automatically at test time with no code change. Chunk S1 queries
+   (e.g. 50k/chunk); never materialize a pair matrix.
+2. **Primary index: FAISS (IVF-PQ or HNSW) from the start** over char 3-5g TF-IDF
+   (or a cheap trained embedding) of `normalized_name + normalized_address`,
+   built on the GPU box. Exact cosine via chunked sklearn `NearestNeighbors` is
+   effectively brute-force sparse matmul at low-millions scale per shard and
+   will be too slow — FAISS is the pipeline's bottleneck component, not an
+   optional upgrade.
+3. **Backfill only where ANN is weak:** exact PIN/ZIP block + first-significant-
+   token block for S1 where the ANN top score is low-confidence or PIN is
+   missing.
+4. **Rank-merge + adaptive cap:** fuse branch scores (ANN cosine first, PIN/token
+   as bonus), sort per S1 — confident S1 (top-1 >> top-2, exact PIN+name hit)
+   keep K≈5-10, uncertain S1 expand to K≈25-40. The cap bounds compute and avoids
+   degenerate K=500 cases; it is not a minimal-K target.
+5. **Gate (must pass before any matcher work):** recall ceiling, recall@K curve
+   (5/10/20/30), mean/median/p90 K, reduction ratio vs Cartesian, build+query
+   time. If recall < 95%, fix normalization/index quality first; raising K is the
+   fallback lever, and it stays on the table — recall caps the scored metric.
+6. Persist the **exact post-merge set** as `candidate_pairs.tsv`; log build time
+   and peak RAM as evidence the pipeline is reasoned about, without
+   over-building for scale you don't have.
 
 ### Phase 3 — Pairwise features + matching model
 Features per (S1, candidate) pair:
@@ -202,12 +235,12 @@ the best F0.5 if GPU budget allows.
    Must print PASS (exit 0). Fix all numbered issues before uploading.
 4. Final zip `<team_name>_submission.zip`:
    - `output/matching_results.tsv`, `output/candidate_pairs.tsv` (BOTH required;
-     candidate file is efficiency-ranked — include a `blocking_report` with mean/
-     median/p90 K, recall ceiling, reduction ratio, build + query time)
+     include a short `blocking_report` with recall ceiling, mean/median/p90 K,
+     reduction ratio, build + query time)
    - `code/business_entity_resolution/src/` (must include the blocking generator
      code that reproduces `candidate_pairs.tsv` — reviewers read it) +
      `README.md` (exact reproduce steps) + `requirements.txt` (pinned)
-   - Filled `Documentation_template.md` (methodology, blocking with K/recall/
+   - Filled `Documentation_template.md` (methodology, blocking with recall/K/
      runtime numbers, model, features).
 
 ---
@@ -215,10 +248,10 @@ the best F0.5 if GPU budget allows.
 ## 4. Risks and Mitigations
 | Risk | Mitigation |
 |---|---|
-| France (unseen country) generalization | Open-set country handling; country-ablation check; per-country val reporting |
-| Bloated candidate sets hurt final ranking (smaller K preferred) | Rank-merge + adaptive K; report recall@K curve; optimize recall-per-K, not raw recall |
-| Blocking doesn't scale to billions | Country sharding + chunked ANN + streaming writes; log build/query time and peak RAM as scale proof |
-| Candidate explosion on 1.73M test S1 | Same as above; never materialize full pair matrix; cap p90 K |
+| Chasing small K costs recall on the *actually scored* metric | Recall ceiling is primary; K is a sanity bound (~40-50), not a minimization target |
+| France (unseen country, 15% of test) underperforms | French normalization table; per-country val reporting; country-ablation check |
+| sklearn NN blocking too slow at real N (low millions/shard) | FAISS (IVF-PQ/HNSW) as primary ANN from the start, sized for actual data |
+| Late-discovered format/integration bugs | Phase 0.5 walking skeleton (trivial blocking end-to-end + validator PASS) |
 | F0.5 punishes false merges incl. singletons | High `tau`, explicit empty-prediction path, macro-F0.5 tuning |
 | Memory blowup (500 MB+ source files) | Chunked CSV, sparse TF-IDF, per-shard indexes, streaming joins |
 | Format rejection wasting submissions | Local validator gate on every run, including `--check-ids` |
@@ -227,9 +260,11 @@ the best F0.5 if GPU budget allows.
 ---
 
 ## 5. Suggested Build Order (when implementation starts)
-1. Val split + F0.5 scorer + normalization module.
-2. Scalable blocking + `candidate_pairs.tsv` + efficiency report (recall ceiling,
-   mean/median/p90 K, recall@5/10/20/30, reduction ratio, runtime/RAM).
+1. Phase 0 scorer (+ unit test vs PDF worked example) + Phase 0.5 walking
+   skeleton (trivial blocking end-to-end, validator PASS).
+2. Normalization module (incl. France table) + FAISS-based blocking + recall/K
+   report (recall ceiling, recall@5/10/20/30, mean/median/p90 K, reduction ratio,
+   runtime/RAM).
 3. Feature builder + LightGBM baseline + `tau` tuning.
 4. Bi-encoder fine-tune + (optional) cross-encoder rerank.
 5. Full test inference + validator + submission zip + methodology doc.
