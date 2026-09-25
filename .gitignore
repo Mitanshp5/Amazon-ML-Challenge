@@ -7,6 +7,13 @@
 **/output-a100/
 **/checkpoints/
 **/models/
+# Drive OAuth secrets + local sync state (never commit)
+client_secrets.json
+*_credentials.json
+mycreds.txt
+token*.json
+sync_manifest.json
+.cache/
 *.DS_Store
 .ipynb_checkpoints/
 __pycache__/
