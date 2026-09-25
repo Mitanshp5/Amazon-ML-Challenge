@@ -268,3 +268,78 @@ the best F0.5 if GPU budget allows.
 3. Feature builder + LightGBM baseline + `tau` tuning.
 4. Bi-encoder fine-tune + (optional) cross-encoder rerank.
 5. Full test inference + validator + submission zip + methodology doc.
+
+---
+
+## 6. Competitive implementation plan (from RESEARCH_FINDINGS §9 + §12)
+
+Goal: best-of-field by porting every proven idea below into our pipeline, in
+dependency order. Each batch lists **what → where → done-when**. Sources in
+brackets. Batches are sequential; items within a batch are parallelizable.
+
+### Batch U1 — Normalization upgrades (local notebook Phase 1; A100 training data)
+- [ ] GLEIF/ISO-20275 French legal-form table (`fr_legal_forms.json` content:
+  SAS/SICAV/SICAF + dotted variants) merged into `FR_ABBR`; disclose as
+  open-code-list map in methodology [R §11].
+- [ ] field reference dotted-variant suffix surfaces (`l.l.c.`, `d/b/a`, `[limited]`)
+  + India addr abbrevs (`nagar`, `marg`) into `ABBR`/`LEGAL_SUFFIX`.
+- [ ] EMM abbreviation finders (merged-initials, CamelCase, punctuated-initials
+  regexes) as extra normalized name signals for DBA/trade-name noise [R §11].
+- [ ] field helpers: `token_signature` / `longest_token` as backfill blocking
+  keys; `M/s` prefix strip; NFKC+casefold switch evaluated vs NFKD.
+- [ ] Named ordered cleaning-rules pattern (replace ad-hoc regex
+  chain with a documented rule list).
+- **Done when:** France+accent asserts extended (SARL/SAS/dotted forms pass),
+  normalization unit tests green in all 3 notebooks.
+
+### Batch U2 — Blocking upgrades (local/A100 Phase 2; plan §Phase 2)
+- [ ] reference TF-IDF config as the full-scale baseline: `char_wb` 3/4-gram,
+  150k feats, `min_df=3`, `max_df=0.35`, sublinear_tf, fp32, sparse matmul in
+  batches of 2500 (never `.toarray()`), `top_k=12`, representation = normalized
+  name + first-3 address tokens, pickled candidate checkpoints — inside
+  country shards (self-verified safe: 0/1,039,380 cross-country pairs).
+- [ ] `sparse_dot_topn` for the sparse top-K matmul (EMM pattern [R §11]);
+  fall back to batched sklearn matmul where unavailable.
+- [ ] phonetic backfill branches: Soundex keys + `max_key_freq` pruning, gated on
+  low ANN confidence / missing PIN (not blind union).
+- [ ] per-key caps (exact 500 / prefix 250 / token 150) as
+  degeneracy guards + per-key block-profile diagnostics in the blocking report.
+- [ ] IDF-weighted recall probe (IDF-weighted, R@1/5/10/20/30 by country ×
+  source) as the blocking gate harness.
+- **Done when:** val recall ceiling ≥95% with mean K reported; gate harness runs
+  in the local notebook.
+
+### Batch U3 — Features + training (local Phase 3; A100 Phase 3)
+- [ ] 7-feature base (tfidf free from blocking, JW, token_sort/set, addr sort,
+  3-level postal, len ratio) + `country_match`, `source_is_s2/s3`,
+  `address_missing`, char-3-gram Jaccard [R §2.1].
+- [ ] RapidFuzz SIMD only on hot paths (never pure-Python/difflib Levenshtein).
+- [ ] Training data: positives from GT + 1:6 hard negatives mined from blocking
+  candidates; **split by S1 entity** (GroupKFold) [R §11].
+- [ ] LightGBM starting params (lr 0.05, 63 leaves, depth 7, min_child 80,
+  subsample/colsample 0.8, reg) → MiniLM fine-tune (A100, safetensors pinned)
+  → optional cross-encoder rerank top-10.
+- [ ] Persist `model_config.json` (feature order + thresholds) next to every
+  artifact; inference asserts alignment [R §3].
+- **Done when:** val macro-F0.5 beats the skeleton baseline by a logged margin;
+  config artifact present.
+
+### Batch U4 — Decision + inference hygiene (all notebooks Phase 4/5)
+- [ ] **Dual thresholds** (`T_singleton`, `T_match`) tuned on entity-level
+  macro-F0.5, tie-break toward higher precision/threshold [R §11].
+- [ ] Inference short-circuit: exact normalized-name matches accepted before
+  scoring; null-likes preserved as no-match rows [R §11].
+- [ ] `metrics.py`-style docstring in the scorer cell stating entity-macro ≠
+  sklearn macro (prevents pair-level-metric confusion for future editors).
+- **Done when:** threshold sweep table + singleton precision reported on val;
+  short-circuit covered by asserts.
+
+### Batch U5 — Ops (packaging; plan §Phase 5)
+- [ ] `run_pipeline.py --sample-train --top-k` CLI pattern for the final `code/`
+  bundle reproducibility gate [R §2.1].
+- [ ] Submit early and often (tie-break + credit dynamics) [R §2.3].
+- [ ] Blocking report ships recall ceiling, recall@K, mean/median/p90 K,
+  reduction ratio, runtime/RAM (already spec'd; PyDI blocking modules as
+  reference if ours stalls).
+- **Done when:** validator `--check-ids` PASS + one-command reproduction from
+  the zip on a fresh checkout.
