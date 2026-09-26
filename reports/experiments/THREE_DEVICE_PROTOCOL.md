@@ -1,5 +1,7 @@
 # Three-device experiments: shared protocol and selection rules
 
+> **RETIRED allocation:** all required work now runs on the current device, with optional Colab A100 for heavy GPU experiments. Use the [active local-first plan](../../LOCAL_COLAB_IMPLEMENTATION_PLAN.md) and [A100 runbook](COLAB_A100_RUNBOOK.md). The comparison/split principles below remain useful references; Mac/RTX roles and execution order no longer apply.
+
 > **Objective update:** maximize verified end-to-end F0.5; no fixed 0.98/0.995 score gate or mandatory 0.0005 improvement floor. Follow the [latest review](../dev_probe/F05_MAXIMIZATION_REVIEW.md) for current results, experiment priority and handoff gaps. Retain paired evaluation, calibration separation, uncertainty and resource controls below. Earlier numerical targets are historical guidance only.
 
 **26 September 2026. Status: execution plan, not completed experiments.** Read the [progress review](../dev_probe/F05_PROGRESS_REVIEW_2026-09-26.md) first. Existing E07–E09 scores use ground-truth-augmented validation candidates. Do not use them as promotion baselines.

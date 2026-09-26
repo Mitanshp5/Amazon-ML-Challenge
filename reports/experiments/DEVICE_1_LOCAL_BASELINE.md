@@ -1,5 +1,7 @@
 # Device 1 — current Windows/Intel Arc machine
 
+> **SUPERSEDED execution plan:** this device now owns all required retrieval, matching, calibration, evaluation and packaging work. Use the consolidated [local-first plan](../../LOCAL_COLAB_IMPLEMENTATION_PLAN.md). Heavy GPU experiments may run alongside it using the [Colab A100 runbook](COLAB_A100_RUNBOOK.md). B0, the candidate-depth oracle and keyed training export are already established; do not restart those stages based on this older document.
+
 > **Current priority update:** maximize verified F0.5 rather than chase a fixed score. B0 and the untrimmed oracle frontier exist; next compare actual scores for US K100 with India K250/untrimmed, and confirm the frozen country-threshold challenger. See the [latest review](../dev_probe/F05_MAXIMIZATION_REVIEW.md). Former oracle/loss thresholds below are not promotion requirements.
 
 **Role:** own evaluation correctness, establish the clean reference, improve retrieval, and integrate the best verified components. Follow the [shared protocol](THREE_DEVICE_PROTOCOL.md). Status: proposed work; no runs launched by this plan update.

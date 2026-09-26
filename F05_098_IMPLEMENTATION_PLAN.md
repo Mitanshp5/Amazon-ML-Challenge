@@ -1,16 +1,18 @@
 # Amazon ML Challenge: implementation plan to maximize verified macro F0.5
 
+> **Active execution plan:** [LOCAL_COLAB_IMPLEMENTATION_PLAN.md](LOCAL_COLAB_IMPLEMENTATION_PLAN.md). All required work now runs on this device; optional GPU-intensive experiments can run in parallel on [Colab A100](reports/experiments/COLAB_A100_RUNBOOK.md). The Mac/RTX assignments and old numeric promotion floors below are superseded. Current artifact verification confirms that keyed training pairs and partitioned texts are complete; that earlier blocker is resolved.
+
 > **Current objective, revised by the user on 26 September 2026:** maximize reliable F0.5 with the available resources; **0.98 is no longer an acceptance gate**. The latest [maximization review and execution order](reports/dev_probe/F05_MAXIMIZATION_REVIEW.md) supersedes the numerical score/oracle floors and priority order in older sections below. Keep this filename for existing links; historical measurements remain preserved.
 
 **Current established reference:** clean B0 **0.904586** on screen_2k. **New provisional challenger:** country-calibrated thresholds **0.906774**, selected on separate calibration_5k; paired 95% delta interval includes zero, so confirm on larger development before promotion. Untrimmed candidate oracle is **0.990452** on screen_2k, but no untrimmed end-to-end matcher result is established yet.
 
-**Next work:** confirm the inexpensive threshold challenger; compare actual scores for India K250/untrimmed candidates; prioritize matcher feature/hard-positive improvements in parallel; finish keyed training export before RTX fine-tuning. B0 already uses 743 trees. Former 0.99/0.995 oracle aspirations and fixed loss budgets must not prevent a useful, verified improvement from being retained. The older sections starting below are the audit history and technical reference, not a current score-status dashboard.
+**Next work:** align split-file readers and isolated run outputs; run the bounded cached-feature matcher screen locally; build the remaining comparison features once; confirm the threshold/model challengers; compare actual scores for India K250/untrimmed candidates. Optional A100 frozen-encoder work can run alongside these local stages. B0 already uses 743 trees. Follow L00–L07 and G00–G04 in the active plan. Older audit sections below preserve the historical findings and do not require repeating completed work.
 
 **Original audit date:** 26 September 2026. **Historical repository snapshot:** `13b3791` (`partial run`). **Latest revision:** 26 September 2026, after reviewing E02–E09 reports, current working-tree source and saved feature caches; three-device hardware allocation updated from user-provided specifications.
 
 **Purpose:** maximize competitive performance under the supplied rules, using the actual code, all seven data files, saved experiments, model artifacts, and previous plans. This is an implementation plan, not a claim that a new model has been trained or that a leaderboard result has been achieved.
 
-## 1. The decision that should drive the project
+## 1. Historical audit decision before clean B0
 
 **Current verdict: the reports do not demonstrate that we are on course for >0.98.** Retrieval has improved on small probes, but the new matcher evaluation uses ground-truth-augmented validation candidates. Repair this before interpreting model improvements or spending all three devices on larger versions of the current training scripts.
 
@@ -48,7 +50,9 @@ The priority order is:
 
 **No evidence can currently establish that >0.98 is attainable on the private leaderboard, or that it is sufficient to win.** France has no training labels, the public/private split is hidden, and the existing 20,000-query sample has been reused for development. The plan below provides measurable gates toward the target rather than promised improvement percentages.
 
-### 1.3 Three-device plans and fair selection
+### 1.3 Retired three-device allocation
+
+**Superseded by the user's latest instruction.** The table below is retained for historical traceability only. All CPU/matcher/retrieval/evaluation work is now local; eligible heavy GPU experiments use optional Colab A100. Use the active plan linked at the top of this file.
 
 Read [the shared experiment protocol](reports/experiments/THREE_DEVICE_PROTOCOL.md) before running any device's experiments. It defines disjoint query roles, proposed portable artifacts, resource limits, promotion gates and the dependency order.
 
@@ -802,6 +806,8 @@ Audit environment includes Python3.11, numpy2.4.6, pandas3.0.5, scipy1.17.1, sci
 Pin exact CPU and GPU dependency sets after clean-install verification. Record torch/CUDA, tokenizer/model libraries, OpenVINO/Optimum when used, architecture/OS and model-export commands. Package license notices for included libraries/models and preserve code attribution if borrowing implementations. Deleting attribution is not a fair-play strategy.
 
 ## 17. Ordered experiments and promotion decisions
+
+**Current override:** execute [local L00–L07 and optional Colab G00–G04](LOCAL_COLAB_IMPLEMENTATION_PLAN.md). The E-series definitions and former device/session ordering below are reference material. No fixed 0.98 score or 0.995 oracle gate remains in force.
 
 **Current execution order is the three-device revision in §1.2–1.3 and the linked device files.** The E00–E12 table below retains the original experimental intent, not a claim that similarly named reports have completed those gates. In particular, E09's cosine-feature report is not the original E09 cross-encoder experiment.
 

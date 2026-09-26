@@ -1,5 +1,7 @@
 # Current progress and plan to maximize verified macro F0.5
 
+> **Latest revision:** the hardware allocation and export status in this review are historical. Use [LOCAL_COLAB_IMPLEMENTATION_PLAN.md](../../LOCAL_COLAB_IMPLEMENTATION_PLAN.md): all required work is local, GPU-intensive experiments may run on Colab A100, and the 1.2M keyed training pairs/text coverage are now verified. The scores and error analysis below remain valid evidence; no new model gain has been measured since them.
+
 **26 September 2026 — revised objective requested by the user:** maximize reliable end-to-end F0.5 with the available three devices. There is no fixed 0.98 acceptance threshold. Numerical oracle floors and loss budgets in the earlier plan are historical aspirations, not blockers for useful improvements.
 
 ## 1. What is established now

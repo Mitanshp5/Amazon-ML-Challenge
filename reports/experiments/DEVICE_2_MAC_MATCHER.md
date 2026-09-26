@@ -1,5 +1,7 @@
 # Device 2 — MacBook Air M4, 16 GB unified memory
 
+> **RETIRED device assignment:** this workload now runs on the current Windows device under L01/L02/L04 of the [active local-first plan](../../LOCAL_COLAB_IMPLEMENTATION_PLAN.md). The experiment ideas below are historical references. No Mac execution or transfer is required. The keyed training-pair export is now complete.
+
 > **Current priority update:** maximize verified F0.5. B0 has 743 trees, so prioritize feature/distribution changes after a bounded capacity screen, rather than treating the old 100-tree cap as unresolved. The actual handoff files are `b0_train_features.joblib` and `b0_eval_features.joblib` under `runs/parallel-v1/d1/b0_baseline/`; the old combined file is absent. The training bundle supports existing-feature tree fits but lacks target IDs for training-pair reconstruction. See the [latest review](../dev_probe/F05_MAXIMIZATION_REVIEW.md) for the new country-threshold challenger and larger-set confirmation protocol.
 
 **User-confirmed hardware:** 10-core CPU, 10-core GPU, 16 GB unified memory. **Role:** controlled matcher, feature and calibration experiments. Follow the [shared protocol](THREE_DEVICE_PROTOCOL.md). This is a plan, not evidence that these experiments have run.

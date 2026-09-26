@@ -1,5 +1,7 @@
 # Device 3 — 13th-gen i5 HX, RTX 3050, 16 GB RAM
 
+> **RETIRED device assignment:** eligible neural experiments now use optional [Colab A100](COLAB_A100_RUNBOOK.md) alongside the [local-first plan](../../LOCAL_COLAB_IMPLEMENTATION_PLAN.md). No RTX 3050 execution or transfer is required. Keyed training pairs and partitioned text coverage have now been verified; earlier missing-export warnings below describe the previous state.
+
 > **Current priority update:** maximize verified F0.5, with frozen multilingual features as the first inexpensive challenger. The current text bundle does not provide a complete keyed supervised training-pair export: obtain training target IDs/labels/text mappings before fine-tuning. Keep evaluation truth out of neural training and natural candidate generation. See the [latest review](../dev_probe/F05_MAXIMIZATION_REVIEW.md); no absolute score target is required to retain a useful neural gain.
 
 **User-confirmed hardware:** 13th-generation i5 HX processor, RTX 3050, 16 GB system RAM. Exact CPU SKU/core count, GPU VRAM and available disk remain unverified. **Role:** complementary multilingual retrieval and task-trained neural matching. Follow the [shared protocol](THREE_DEVICE_PROTOCOL.md). These are proposed experiments, not completed model improvements.
