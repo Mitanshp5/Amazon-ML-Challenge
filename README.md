@@ -12,6 +12,7 @@ Full spec: `amazon_ml_challenge_problem_statement.pdf` + `ENTITY_RESOLUTION_PLAN
 | `notebooks/entity_resolution.ipynb` | SageMaker `ml.t3.medium` — sample-only pipeline |
 | `notebooks/entity_resolution_local.ipynb` | Windows PC (Ultra 9, 32 GB, Arc 140T) + OpenVINO inference + Drive sync |
 | `notebooks/entity_resolution_a100.ipynb` | Colab A100 — GPU ANN, fine-tuning, rerank, OpenVINO export |
+| `MACBOOK_SETUP.md` | Runbook for the MacBook shard worker (US + France test blocking): setup, cell list, handoff |
 | `student_resource/` | Challenge files (README, validator, ground truth schema). Dataset TSVs live here locally but are **gitignored** |
 | `amazon_ml_challenge_problem_statement.pdf` | Original problem statement |
 
