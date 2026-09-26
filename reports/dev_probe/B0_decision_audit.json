@@ -1,0 +1,135 @@
+{
+  "scope": "fixed B0 probabilities; calibration-only selection; 2k screen is development",
+  "policies": {
+    "baseline": {
+      "global": {
+        "ts": 0.7,
+        "tm": 0.7
+      }
+    },
+    "fine_global": {
+      "global": {
+        "ts": 0.665,
+        "tm": 0.665
+      }
+    },
+    "fine_dual": {
+      "global": {
+        "ts": 0.715,
+        "tm": 0.685,
+        "calibration_f05": 0.9127410134499476
+      }
+    },
+    "country_dual": {
+      "global": {
+        "ts": 0.715,
+        "tm": 0.685,
+        "calibration_f05": 0.9127410134499476
+      },
+      "India": {
+        "ts": 0.72,
+        "tm": 0.7,
+        "calibration_f05": 0.8892605953548575
+      },
+      "US": {
+        "ts": 0.585,
+        "tm": 0.585,
+        "calibration_f05": 0.938968032125654
+      }
+    }
+  },
+  "results": {
+    "baseline": {
+      "calibration_f05": 0.9120597436252846,
+      "screen_f05": 0.9045857751216889,
+      "delta_vs_b0": 0.0,
+      "paired_95_ci": [
+        0.0,
+        0.0
+      ],
+      "singleton_false_merges": 12,
+      "false_empty_non_singletons": 48,
+      "pair_precision": 0.9646531695984069,
+      "pair_recall": 0.8364028776978417,
+      "by_country": {
+        "India": 0.8752989791177422,
+        "US": 0.9338725711256358
+      }
+    },
+    "fine_global": {
+      "calibration_f05": 0.9123665068378904,
+      "screen_f05": 0.9042939308031267,
+      "delta_vs_b0": -0.00029184431856235047,
+      "paired_95_ci": [
+        -0.002628750618049449,
+        0.0020105027379564095
+      ],
+      "singleton_false_merges": 14,
+      "false_empty_non_singletons": 43,
+      "pair_precision": 0.9595744680851064,
+      "pair_recall": 0.8435971223021582,
+      "by_country": {
+        "India": 0.8739576517211172,
+        "US": 0.9346302098851361
+      }
+    },
+    "fine_dual": {
+      "calibration_f05": 0.912741013449942,
+      "screen_f05": 0.9045986318873442,
+      "delta_vs_b0": 1.2856765655225644e-05,
+      "paired_95_ci": [
+        -0.000992829419880057,
+        0.0009092067244702831
+      ],
+      "singleton_false_merges": 12,
+      "false_empty_non_singletons": 48,
+      "pair_precision": 0.9627554383651945,
+      "pair_recall": 0.8405755395683453,
+      "by_country": {
+        "India": 0.8754997397381865,
+        "US": 0.9336975240365021
+      }
+    },
+    "country_dual": {
+      "calibration_f05": 0.9141143137402512,
+      "screen_f05": 0.9067743787310397,
+      "delta_vs_b0": 0.002188603609350647,
+      "paired_95_ci": [
+        -0.00015532437428995532,
+        0.00469895032271411
+      ],
+      "singleton_false_merges": 13,
+      "false_empty_non_singletons": 43,
+      "pair_precision": 0.9606851549755302,
+      "pair_recall": 0.8473381294964029,
+      "by_country": {
+        "India": 0.8752989791177422,
+        "US": 0.9382497783443372
+      }
+    }
+  },
+  "input_sha256": {
+    "b0_eval_features.joblib": "ade7f34d45aeec011521fc10ba8b33164d1003f6d03d2d17da68bd4b031670fa",
+    "calibration_predictions.parquet": "9d788f45ad0ed0f154443f582e523b07e64dfa9ee7e366178857611547eba7f0",
+    "screen_predictions.parquet": "c43431bc50541b7b93eaf27f74f27cb59d014028d2eea02f629bea05ddd0d747"
+  },
+  "baseline_diagnostics": {
+    "oracle": 0.9851593447117047,
+    "retrieval_loss": 0.014840655288295257,
+    "matcher_loss": 0.08057356959001583,
+    "query_error_categories": {
+      "perfect": 1095,
+      "fp_only": 111,
+      "fn_only": 717,
+      "fp_and_fn": 77
+    },
+    "loss_contributions": {
+      "fp_only": 0.018203369987069416,
+      "fn_only": 0.06219920683043908,
+      "fp_and_fn": 0.015011648060802494
+    },
+    "counterfactual_remove_all_fp_gain": 0.026676071681677738,
+    "counterfactual_add_all_retrieved_fn_gain": 0.05423807231959754,
+    "counterfactual_caveat": "Answer-key diagnostics only; not implementable policies; gains are not additive."
+  }
+}

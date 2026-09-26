@@ -1,5 +1,7 @@
 # Three-device experiments: shared protocol and selection rules
 
+> **Objective update:** maximize verified end-to-end F0.5; no fixed 0.98/0.995 score gate or mandatory 0.0005 improvement floor. Follow the [latest review](../dev_probe/F05_MAXIMIZATION_REVIEW.md) for current results, experiment priority and handoff gaps. Retain paired evaluation, calibration separation, uncertainty and resource controls below. Earlier numerical targets are historical guidance only.
+
 **26 September 2026. Status: execution plan, not completed experiments.** Read the [progress review](../dev_probe/F05_PROGRESS_REVIEW_2026-09-26.md) first. Existing E07–E09 scores use ground-truth-augmented validation candidates. Do not use them as promotion baselines.
 
 ## 1. Device allocation

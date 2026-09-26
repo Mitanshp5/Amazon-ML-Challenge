@@ -1,5 +1,7 @@
 # Device 1 — current Windows/Intel Arc machine
 
+> **Current priority update:** maximize verified F0.5 rather than chase a fixed score. B0 and the untrimmed oracle frontier exist; next compare actual scores for US K100 with India K250/untrimmed, and confirm the frozen country-threshold challenger. See the [latest review](../dev_probe/F05_MAXIMIZATION_REVIEW.md). Former oracle/loss thresholds below are not promotion requirements.
+
 **Role:** own evaluation correctness, establish the clean reference, improve retrieval, and integrate the best verified components. Follow the [shared protocol](THREE_DEVICE_PROTOCOL.md). Status: proposed work; no runs launched by this plan update.
 
 ## Resources and boundaries

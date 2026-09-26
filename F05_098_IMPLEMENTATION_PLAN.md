@@ -1,4 +1,10 @@
-# Amazon ML Challenge: audited implementation plan toward macro F0.5 > 0.98
+# Amazon ML Challenge: implementation plan to maximize verified macro F0.5
+
+> **Current objective, revised by the user on 26 September 2026:** maximize reliable F0.5 with the available resources; **0.98 is no longer an acceptance gate**. The latest [maximization review and execution order](reports/dev_probe/F05_MAXIMIZATION_REVIEW.md) supersedes the numerical score/oracle floors and priority order in older sections below. Keep this filename for existing links; historical measurements remain preserved.
+
+**Current established reference:** clean B0 **0.904586** on screen_2k. **New provisional challenger:** country-calibrated thresholds **0.906774**, selected on separate calibration_5k; paired 95% delta interval includes zero, so confirm on larger development before promotion. Untrimmed candidate oracle is **0.990452** on screen_2k, but no untrimmed end-to-end matcher result is established yet.
+
+**Next work:** confirm the inexpensive threshold challenger; compare actual scores for India K250/untrimmed candidates; prioritize matcher feature/hard-positive improvements in parallel; finish keyed training export before RTX fine-tuning. B0 already uses 743 trees. Former 0.99/0.995 oracle aspirations and fixed loss budgets must not prevent a useful, verified improvement from being retained. The older sections starting below are the audit history and technical reference, not a current score-status dashboard.
 
 **Original audit date:** 26 September 2026. **Historical repository snapshot:** `13b3791` (`partial run`). **Latest revision:** 26 September 2026, after reviewing E02–E09 reports, current working-tree source and saved feature caches; three-device hardware allocation updated from user-provided specifications.
 

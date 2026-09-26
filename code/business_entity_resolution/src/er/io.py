@@ -57,3 +57,27 @@ def load_b0_bundle(bundle_dir: str | Path = "runs/parallel-v1/d1/b0_baseline") -
         return joblib.load(single_path)
     else:
         raise FileNotFoundError(f"Could not find B0 feature bundle in {bundle_dir}")
+
+
+def load_record_text_provenance(bundle_dir: str | Path = "runs/parallel-v1/d1/b0_baseline") -> dict:
+    """Loads the text records seamlessly from split parts (<45MB each, Git-friendly) or single file."""
+    import joblib
+
+    bundle_dir = Path(bundle_dir)
+    single_path = bundle_dir / "record_text_provenance.joblib"
+    train_path = bundle_dir / "train_text_records.joblib"
+    eval_path = bundle_dir / "eval_text_records.joblib"
+
+    if train_path.exists() and eval_path.exists():
+        train_data = joblib.load(train_path)
+        eval_data = joblib.load(eval_path)
+        return {
+            "queries": train_data["queries"],
+            "train_targets": train_data["train_targets"],
+            "eval_candidate_targets": eval_data["eval_candidate_targets"],
+            "diagnostic_unretrieved_targets": eval_data["diagnostic_unretrieved_targets"],
+        }
+    elif single_path.exists():
+        return joblib.load(single_path)
+    else:
+        raise FileNotFoundError(f"Could not find text provenance in {bundle_dir}")

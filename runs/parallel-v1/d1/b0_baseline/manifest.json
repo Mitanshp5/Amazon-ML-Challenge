@@ -1,9 +1,9 @@
 {
   "experiment_id": "D1-01_B0_BASELINE",
-  "description": "Audited Clean Reference Baseline B0 (Zero Ground-Truth Injection)",
-  "timestamp": "2026-09-26 19:49:47",
+  "description": "Audited Clean Reference Baseline B0 (Zero Ground-Truth Injection, Keyed Multi-Device Handoff)",
+  "timestamp": "2026-09-26 21:00:12",
   "git_state": {
-    "commit": "0087d6c9627de58d64139e2761e0b960d146cd36",
+    "commit": "51ad77be0e0aaf30bb638fb6442a0c1190b1da15",
     "dirty": true
   },
   "hardware": {
@@ -33,25 +33,23 @@
     },
     "model_file": "71cd8f1a9ae9f6a661ce4ad0c57ba4638fb4e65ae1a1722c57021ffb0f81529e",
     "threshold_file": "5037cce225547024a520270c6a81684fe4a013110c20891929e6252b8cde81b0",
-    "portable_bundle": "dd283b75ea69c4a3de854a7519efc5be7fa98ab9bf60e7ab756e6dd449f9c2d0"
-  },
-  "model_parameters": {
-    "num_trees": 743,
-    "learning_rate": 0.05,
-    "max_depth": 7,
-    "num_leaves": 63,
-    "min_child_samples": 80,
-    "subsample": 0.8,
-    "bagging_freq": 1,
-    "calibrated_thresholds": {
-      "t_singleton": 0.7,
-      "t_match": 0.7
+    "bundle_artifacts": {
+      "b0_train_features.joblib": "c988de686c081372d90836300e6a5177d9e151f2a224259a76b68f8783aa03a8",
+      "b0_eval_features.joblib": "ade7f34d45aeec011521fc10ba8b33164d1003f6d03d2d17da68bd4b031670fa",
+      "train_pairs.parquet": "1e57a8a6e56ea2653d761e9fd25615ffe9b8e8bec564e142bf9bb9a66faa8f62",
+      "calibration_predictions.parquet": "9d788f45ad0ed0f154443f582e523b07e64dfa9ee7e366178857611547eba7f0",
+      "screen_predictions.parquet": "c43431bc50541b7b93eaf27f74f27cb59d014028d2eea02f629bea05ddd0d747",
+      "train_text_records.joblib": "f95023144d2c5407b92ddc8b9d1072ef25a89027305ba96df7db38071fc39997",
+      "eval_text_records.joblib": "2b0f56c1fbfa79701a3936668dfcb17a16fa909a891823cf62268248d01d48c3"
     }
   },
   "bundle_contents": {
-    "b0_portable_bundle.joblib": "Training, calibration, and evaluation feature arrays and labels for D2",
-    "calibration_predictions.parquet": "Per-pair probabilities and match indicators on calibration_5k",
-    "screen_predictions.parquet": "Per-pair probabilities and match indicators on screen_2k",
-    "record_text_provenance.joblib": "Raw & normalized texts for queries and targets for D3 neural models"
+    "b0_train_features.joblib": "1.2M training candidate pairs, group IDs, 3-fold splits, 23 feature matrix (32.7 MB)",
+    "b0_eval_features.joblib": "500k calibration + 200k eval candidate pairs with labels and RRF scores (27.5 MB)",
+    "train_pairs.parquet": "Keyed training pairs (query_id, target_id, is_match, fold, rrf_score) for D3 supervised training (15.2 MB)",
+    "calibration_predictions.parquet": "Per-pair probabilities and match indicators on calibration_5k (10.7 MB)",
+    "screen_predictions.parquet": "Per-pair probabilities and match indicators on screen_2k (4.6 MB)",
+    "train_text_records.joblib": "Text records for 19k queries and 931k training targets for D3 neural models (43.9 MB)",
+    "eval_text_records.joblib": "Text records for 588k eval candidate targets and 852 unretrieved diagnostic targets (27.8 MB)"
   }
 }

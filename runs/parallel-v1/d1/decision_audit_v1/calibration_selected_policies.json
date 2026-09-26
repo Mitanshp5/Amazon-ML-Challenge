@@ -1,0 +1,38 @@
+{
+  "baseline": {
+    "global": {
+      "ts": 0.7,
+      "tm": 0.7
+    }
+  },
+  "fine_global": {
+    "global": {
+      "ts": 0.665,
+      "tm": 0.665
+    }
+  },
+  "fine_dual": {
+    "global": {
+      "ts": 0.715,
+      "tm": 0.685,
+      "calibration_f05": 0.9127410134499476
+    }
+  },
+  "country_dual": {
+    "global": {
+      "ts": 0.715,
+      "tm": 0.685,
+      "calibration_f05": 0.9127410134499476
+    },
+    "India": {
+      "ts": 0.72,
+      "tm": 0.7,
+      "calibration_f05": 0.8892605953548575
+    },
+    "US": {
+      "ts": 0.585,
+      "tm": 0.585,
+      "calibration_f05": 0.938968032125654
+    }
+  }
+}

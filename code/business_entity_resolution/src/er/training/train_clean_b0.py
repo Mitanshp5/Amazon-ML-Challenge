@@ -407,7 +407,8 @@ def main() -> None:
 
     # Exact Metrics
     final_macro_f05 = macro_f05(eval_truth_by_q, final_predictions)
-    oracle_f05 = oracle_macro_f05(eval_truth_by_q, eval_candidates_by_q)
+    eval_candidate_ids = {q: [pid for pid, _ in rows] for q, rows in eval_candidates_by_q.items()}
+    oracle_f05 = oracle_macro_f05(eval_truth_by_q, eval_candidate_ids)
 
     # Exact True Loss Decomposition
     total_loss = 1.0 - final_macro_f05
@@ -423,7 +424,7 @@ def main() -> None:
         c_q = {q for q in eval_q_set if eval_country_map[q] == c}
         c_truth = {q: eval_truth_by_q[q] for q in c_q}
         c_pred = {q: final_predictions[q] for q in c_q}
-        c_cands = {q: eval_candidates_by_q[q] for q in c_q}
+        c_cands = {q: eval_candidate_ids[q] for q in c_q}
         c_f05 = macro_f05(c_truth, c_pred)
         c_oracle = oracle_macro_f05(c_truth, c_cands)
         eval_by_country[c] = {
