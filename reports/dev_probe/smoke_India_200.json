@@ -1,0 +1,43 @@
+{
+  "modes": {
+    "joint": {
+      "mean_k": 20.0,
+      "info": {
+        "vocab": 30000,
+        "nnz": 25960795
+      },
+      "sample_q": "S1-755362802",
+      "sample_n": 20
+    },
+    "name_only": {
+      "mean_k": 20.0,
+      "info": {
+        "vocab": 30000,
+        "nnz": 8966759
+      },
+      "sample_q": "S1-755362802",
+      "sample_n": 20
+    },
+    "address_only": {
+      "mean_k": 20.0,
+      "info": {
+        "vocab": 30000,
+        "nnz": 17707406
+      },
+      "sample_q": "S1-755362802",
+      "sample_n": 20
+    }
+  },
+  "union": {
+    "mean": 53.5,
+    "max": 60,
+    "min": 39
+  },
+  "meta": {
+    "country": "India",
+    "n_queries": 200,
+    "pool": 200000,
+    "seconds": 57.4,
+    "note": "SMOKE ONLY: capped pool, not a recall/oracle measurement"
+  }
+}

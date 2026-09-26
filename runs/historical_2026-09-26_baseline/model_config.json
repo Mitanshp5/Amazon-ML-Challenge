@@ -1,0 +1,51 @@
+{
+ "features": [
+  "tfidf",
+  "name_wratio",
+  "name_set",
+  "name_sort",
+  "addr_sort",
+  "len_ratio",
+  "char3_jac",
+  "num_match",
+  "country_match",
+  "source_is_s2",
+  "address_missing",
+  "addr_set",
+  "addr_word_jac",
+  "name_partial",
+  "addr_partial",
+  "name_exact",
+  "pin_match",
+  "pin_mismatch"
+ ],
+ "lightgbm": {
+  "objective": "binary",
+  "learning_rate": 0.05,
+  "num_leaves": 63,
+  "max_depth": 7,
+  "min_child_samples": 80,
+  "subsample": 0.8,
+  "colsample_bytree": 0.8,
+  "reg_lambda": 1.0,
+  "n_estimators": 2000,
+  "n_jobs": 16,
+  "verbose": -1
+ },
+ "n_estimators_refit": 769,
+ "T_singleton": 0.85,
+ "T_match": 0.85,
+ "oof_macro_f05": 0.8886,
+ "best_iters": [
+  769,
+  811,
+  674
+ ],
+ "train_pairs": 468489,
+ "all_pairs": 1680650,
+ "seed": 42,
+ "candidates": {
+  "India": "candidates_v4_india_8065.pkl",
+  "US": "candidates_v5_us_11935.pkl"
+ }
+}

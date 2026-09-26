@@ -1,0 +1,94 @@
+{
+  "commit": "13b37915d2c796dc2ff79c50503438e316ca7c84",
+  "files": {
+    "candidate_pairs.tsv": {
+      "bytes": 21939439,
+      "sha256": "49c98dd72e35dfda8ce1e510789f512f6fe3563f67408d19847f3e287d63b5c9"
+    },
+    "candidate_pairs_test_smoke.tsv": {
+      "bytes": 2064571,
+      "sha256": "7230bea5af9031fe9c1b531e801d7f7b13fe826009205c0a801d28071e7aec50"
+    },
+    "candidate_pairs_v6.tsv": {
+      "bytes": 13166782,
+      "sha256": "214ba52d9bc327f20b94d3662d9e57fdd45702274b6662a2d6cf1e05f3653a6b"
+    },
+    "checkpoints/candidates_v3_india_8065.pkl": {
+      "bytes": 14699633,
+      "sha256": "ed23b9c7d740e2ebbea1d3f65aa9ee26b96b3d2d65db4176b4059b59921c9c4a"
+    },
+    "checkpoints/candidates_v3_us_11935.pkl": {
+      "bytes": 17468660,
+      "sha256": "a9a630a04bade4d0e5d06f7a336b92a13621266b2abdb720d5296d8da28671b2"
+    },
+    "checkpoints/candidates_v3_us_11935_BASELINE_9317.pkl": {
+      "bytes": 17468660,
+      "sha256": "a9a630a04bade4d0e5d06f7a336b92a13621266b2abdb720d5296d8da28671b2"
+    },
+    "checkpoints/candidates_v4_india_8065.pkl": {
+      "bytes": 23348747,
+      "sha256": "b29202bc2a9b25fb3efeaef4e9dba19ef7e9d7be4552975252d006413da8f2ca"
+    },
+    "checkpoints/candidates_v4_us_11935.pkl": {
+      "bytes": 17468892,
+      "sha256": "da957a8481f90205ddd70524158a1bd8bad895d7864fec79e20cc8f7589651a4"
+    },
+    "checkpoints/candidates_v4_us_11935_PRE80.pkl": {
+      "bytes": 17468892,
+      "sha256": "da957a8481f90205ddd70524158a1bd8bad895d7864fec79e20cc8f7589651a4"
+    },
+    "checkpoints/candidates_v5_us_11935.pkl": {
+      "bytes": 31609323,
+      "sha256": "d6104c3bfa72ca907554438de9b1821f61fba2571d957e07a7f8adea7b2191d8"
+    },
+    "checkpoints/candidates_v6_combined_20000.pkl": {
+      "bytes": 22593865,
+      "sha256": "4b28f02b8e3afc9143d62608aa5d557b8675b0d1e4c100faf8b29bc822e5eec7"
+    },
+    "lgbm_model.txt": {
+      "bytes": 5140794,
+      "sha256": "06165f8e64dee46699e0e91497bce6d02d5f2e38ff37496faf2b94b00d86c589"
+    },
+    "lgbm_model_base08626.txt": {
+      "bytes": 3975694,
+      "sha256": "a971decc2bbc2d4ac3bfdad812cf77573e24dedebb363c2d9c98365e7a478ad0"
+    },
+    "matching_results.tsv": {
+      "bytes": 384103,
+      "sha256": "d40f86009d15ec18b95dc49bf8a2d828cc3aca984e2ff97baa3ab97e13e35c73"
+    },
+    "model_config.json": {
+      "bytes": 917,
+      "sha256": "299c3900c7c8bbbae7d81cb99834ae53e14267c49e9fb81dbe2b388e73d608e0"
+    },
+    "model_config_base08626.json": {
+      "bytes": 792,
+      "sha256": "b569dd4fea1193ea4ab53223ea3e230cc399ac3a9b2253ff12f54310e74ac491"
+    },
+    "test_parts_full/test_India_c000.tsv": {
+      "bytes": 29347309,
+      "sha256": "010ce7e6ace27af95dde41b3bea37551fc8a2f69256170585e0d0875be83294d"
+    },
+    "test_parts_full/test_India_c001.tsv": {
+      "bytes": 29348346,
+      "sha256": "e448e10ce559dff223058b9a95841aeb76fbe8329cc60bb60f4cbb840afafb40"
+    },
+    "test_parts_full/test_India_c002.tsv": {
+      "bytes": 29348031,
+      "sha256": "cced033aeb58aa17db87db68dc8561f51d6646898361ec598c0ccb983fe32d9e"
+    },
+    "test_parts_smoke/test_France_smoke.tsv": {
+      "bytes": 149838,
+      "sha256": "d75858d1779adad5c72eafc51b613b82694b1d456b1d2bb3b0dbe87355206bfa"
+    },
+    "test_parts_smoke/test_India_smoke.tsv": {
+      "bytes": 1095396,
+      "sha256": "07ed98f51b8ead990fe9983878cbd0d406fe6da278fcb93d7afe36570ab3ae33"
+    },
+    "test_parts_smoke/test_US_smoke.tsv": {
+      "bytes": 819417,
+      "sha256": "6ed8ae5d51d25cbd569a6abdd5d63c95def5be31d9b28ba98263c2dc9159051a"
+    }
+  },
+  "notes": "Immutable historical pointer. Large pickles/models referenced by hash, not duplicated. Do not overwrite."
+}

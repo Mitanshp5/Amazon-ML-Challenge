@@ -1,0 +1,43 @@
+{
+  "modes": {
+    "joint": {
+      "mean_k": 20.0,
+      "info": {
+        "vocab": 30000,
+        "nnz": 18042420
+      },
+      "sample_q": "S1-925783039",
+      "sample_n": 20
+    },
+    "name_only": {
+      "mean_k": 20.0,
+      "info": {
+        "vocab": 30000,
+        "nnz": 9320619
+      },
+      "sample_q": "S1-925783039",
+      "sample_n": 20
+    },
+    "address_only": {
+      "mean_k": 20.0,
+      "info": {
+        "vocab": 30000,
+        "nnz": 9060810
+      },
+      "sample_q": "S1-925783039",
+      "sample_n": 20
+    }
+  },
+  "union": {
+    "mean": 47.34,
+    "max": 57,
+    "min": 42
+  },
+  "meta": {
+    "country": "US",
+    "n_queries": 200,
+    "pool": 200000,
+    "seconds": 42.9,
+    "note": "SMOKE ONLY: capped pool, not a recall/oracle measurement"
+  }
+}

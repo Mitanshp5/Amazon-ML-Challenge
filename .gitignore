@@ -20,3 +20,10 @@ venv/
 *.parquet
 *.pkl
 *.bin
+
+# Added during audit/E00
+graphify-out/
+.opencode/
+tmp/
+splits/
+.pytest_cache/
