@@ -10,27 +10,20 @@
 
 ---
 
-## 1. Milestone Status Tracker
+## 1. Audited Multi-Device Milestone Tracker
 
-| Milestone | Description | Status | Key Metric / Result | Artifact / Report |
-|---|---|---|---|---|
-| **E00** | Baseline Freeze & Metric Verification | **COMPLETED** | Verified historical baseline: `0.8886` OOF Macro-$F_{0.5}$ | `cache/models/model_config.json` |
-| **E01** | Normalization Parity & Unit Tests | **COMPLETED** | 12/12 unit tests passing (Unicode NFKC, Indic, French, component parsing) | `tests/test_normalization.py` |
-| **E02 / E03** | Full-Pool Lexical & Structured Retrieval Sweeps | **COMPLETED** | **India Oracle:** `0.9858` (Pair Recall: 96.52%)<br>**US Oracle:** `0.9985` (Pair Recall: 99.53%) | `reports/dev_probe/E02_E03_India_sweep.md`<br>`reports/dev_probe/E02_E03_US_sweep.md` |
-| **E04** | Intel Arc 140T Dense OpenVINO Engine | **COMPLETED** | Arc 140T GPU native inference @ **6,777 texts/sec** (batch size 512, FP16) | `code/business_entity_resolution/src/er/retrieval/dense.py`<br>`cache/models/all-MiniLM-L6-v2_openvino/` |
-| **E06** | Candidate Compression Frontier | **COMPLETED** | $K=100$ per query preserves `0.9812` oracle ceiling while reducing pairs by 65% | `reports/dev_probe/E06_compression_frontier_India.md` |
-| **E07 (Scaled)** | Scaled Grouped LightGBM Matcher | **COMPLETED** | **OOF Macro-$F_{0.5} = 0.9051$** on 3,000 val queries (1.5M pairs trained); Pair Precision `94.41%`, Pair Recall `85.72%` | `reports/dev_probe/E07_matcher_report.md`<br>`cache/models/lgbm_matcher_v2.txt` |
-| **E08** | Dual-Threshold Singleton Calibration | **COMPLETED** | Evaluated 2D grid $(T_{\text{singleton}}, T_{\text{match}})$; optimal policy $T_s=0.60, T_m=0.60$ | `cache/models/calibrated_thresholds.json` |
-| **E10** | Graph/Target Disambiguation & Consistency | **COMPLETED** | Evaluated 1-to-1 target conflict resolution; resolves multi-query claims | Built into matcher pipeline |
-| **E09** | Multilingual & Dense Feature Integration | **RUNNING** | Intel Arc 140T GPU dense cosine similarity feature + 12 CPU cores via ThreadPoolExecutor | Background Task ID: `task-963` |
-| **E12** | Test Pipeline & Submission Verification | **PENDING** | Chunked streaming inference on 1.73M test queries with validator | `student_resource/student_resource/validator.py` |
+| Milestone | Device | Description | Status | Verified Metrics | Key Artifacts |
+|---|---|---|---|---|---|
+| **D1-00** | D1 (Win) | **Evaluation Contract Repair** | **COMPLETED** | 19/19 unit tests passing. Zero GT injection. | `splits/f05-v1/parallel-v1/`<br>`candidate_generation.py`<br>`test_evaluation_contract.py` |
+| **D1-01** | D1 (Win) | **Clean Baseline B0 & Untrimmed Control** | **ESTABLISHED SCREENING BASELINE** | **Clean Macro $F_{0.5}$:** `0.904586`<br>**K100 Oracle:** `0.985159`<br>**Untrimmed Oracle:** `0.990452`<br>**Retrieval Loss:** `0.014841`<br>**Matcher Loss:** `0.080574` | `runs/parallel-v1/d1/b0_baseline/b0_portable_bundle.joblib`<br>`calibration_predictions.parquet`<br>`screen_predictions.parquet`<br>`record_text_provenance.joblib`<br>`manifest.json` |
+| **D1-02** | D1 (Win) | **India Lexical Expansion** | **NEXT** | Target: India candidate oracle $\ge 0.99$ | Address $K=150 \to 300$, token frequency weighting, Unicode views |
+| **D2-01** | D2 (Mac) | **Matcher & Decision Optimization** | **READY FOR DISTRIBUTION** | Target: Close matcher loss (`0.08057` $\to$ `<0.015`) | Boosting sweeps, focal/asymmetric loss, hard negative mining |
+| **D3-01** | D3 (RTX) | **Multilingual Dense Challenger** | **READY FOR DISTRIBUTION** | Target: Semantic complement to lexical retrieval | `multilingual-e5-small` fine-tuning on `record_text_provenance.joblib` |
+| **Final Holdout** | Locked | **Unbiased Final Verification** | **LOCKED** | Strict blind evaluation of winner | `splits/f05-v1/holdout_unexposed_198351.json` |
 
 ---
 
-## 2. Active Run Details: Milestone E09
-- **Scope:** 15,000 queries (12,000 train + 3,000 held-out validation) across India and US.
-- **Hardware Integration:**
-  - **Intel Arc 140T GPU (16GB):** Running OpenVINO FP16 XMX inference at batch size 512.
-  - **12 CPU Cores:** Running parallel lexical search, structured indexing, and pair feature extraction via `ThreadPoolExecutor` (eliminating Windows IPC overhead).
-- **Features:** 24 features (23 lexical/structural + continuous dense embedding cosine similarity).
-- **Output Artifacts:** `cache/models/lgbm_matcher_dense_v1.txt`, `cache/models/calibrated_thresholds_dense.json`, `reports/dev_probe/E09_dense_matcher_report.md`.
+## 2. Multi-Device Handoff Readiness
+- **Device 2 (MacBook Air M4):** Needs only `runs/parallel-v1/d1/b0_baseline/b0_portable_bundle.joblib` (60.1 MB) shared via Drive/Local network. Can immediately train LightGBM matchers without large TSVs or index builds.
+- **Device 3 (RTX 3050):** Needs `runs/parallel-v1/d1/b0_baseline/record_text_provenance.joblib` (27.8 MB) and prediction parquets to fine-tune neural encoders.
+- **Device 1 (Windows / Arc 140T):** Ready to execute D1-02 India Lexical Expansion.

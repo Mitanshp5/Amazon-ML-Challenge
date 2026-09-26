@@ -1,0 +1,32 @@
+{
+  "seed": "parallel-v1",
+  "manifests": {
+    "train_12k": {
+      "total": 12000,
+      "India": 6000,
+      "US": 6000,
+      "source": "train_partition"
+    },
+    "calibration_5k": {
+      "total": 5000,
+      "India": 2500,
+      "US": 2500,
+      "source": "dev_partition"
+    },
+    "comparison_15k": {
+      "total": 15000,
+      "India": 7500,
+      "US": 7500,
+      "source": "dev_partition"
+    },
+    "screen_2k": {
+      "total": 2000,
+      "India": 1000,
+      "US": 1000,
+      "source": "comparison_15k_subset"
+    }
+  },
+  "disjointness_verified": true,
+  "holdout_leakage": 0,
+  "dev_exposed_leakage": 0
+}

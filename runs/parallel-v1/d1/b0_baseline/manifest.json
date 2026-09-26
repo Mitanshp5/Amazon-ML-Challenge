@@ -1,0 +1,57 @@
+{
+  "experiment_id": "D1-01_B0_BASELINE",
+  "description": "Audited Clean Reference Baseline B0 (Zero Ground-Truth Injection)",
+  "timestamp": "2026-09-26 19:49:47",
+  "git_state": {
+    "commit": "0087d6c9627de58d64139e2761e0b960d146cd36",
+    "dirty": true
+  },
+  "hardware": {
+    "device": "Device 1 (Windows / Intel Arc 140T)",
+    "cpu_cores_pinned": 12,
+    "backend": "scikit-learn + LightGBM CPU + ThreadPoolExecutor(12)"
+  },
+  "hashes": {
+    "raw_inputs": {
+      "train_source1.tsv": "591af0e1dfeb65cab71ea6ee8cb69df00f92d6ba6fa79e05746c938775d14973",
+      "train_source2.tsv": "6336c1a055eec79cf8a6d99fdc8d32a2e4d9dc2662e00963cb35d66b89ed09ed",
+      "train_source3.tsv": "67da22f5151898ff3006febd836c1a159e97ae95efa7257a5aff4fda685e58e9",
+      "train_ground_truth.tsv": "70bc1d8a16c667e0155c2105d0ab2ebe41d7e7a85d8a529e3ca81c6c3a5af037"
+    },
+    "role_manifests": {
+      "train_12k.json": "179851868c93990c2a35e973f8735ca79f4040ea024f603625a59d49bc54029a",
+      "calibration_5k.json": "11000b5f50abe615cf58753d1fa75e3f7dd8b666052363dd17bcaeaa77b8e074",
+      "comparison_15k.json": "7eb7e6b5d0e96d95fbc502343b22811361647a0b022d6d6e0f29d3d215e77290",
+      "screen_2k.json": "f8a57fe770281782efc62372c62b8f770b16ca50b949d26776853a3a90a6a4aa",
+      "inner_train_folds.json": "8506e0900fb9943f36d692c114b0d7004ece36addbdb0408553867ad953e706b"
+    },
+    "retrieval_caches": {
+      "pool_dict_India.joblib": "f08d6ec4d010e0fe20a084dbdb209bd01d9ebe0be6a1909fb5451ec5d4d2590f",
+      "pool_dict_US.joblib": "b690b04c5556bd43d58199a006ac9a6b1510fe25d3e5f2af304b53a261df55a7",
+      "mat_India_joint.npz": "9f50eaaf059c7aa2f8a607ff43a0e759e69bd4a98ddc04c8f954281574fd30d1",
+      "mat_US_joint.npz": "1bfebf00b48fa3d8821040023a04ba13073b12b02c64f8a01e68d6b7683f1613"
+    },
+    "model_file": "71cd8f1a9ae9f6a661ce4ad0c57ba4638fb4e65ae1a1722c57021ffb0f81529e",
+    "threshold_file": "5037cce225547024a520270c6a81684fe4a013110c20891929e6252b8cde81b0",
+    "portable_bundle": "dd283b75ea69c4a3de854a7519efc5be7fa98ab9bf60e7ab756e6dd449f9c2d0"
+  },
+  "model_parameters": {
+    "num_trees": 743,
+    "learning_rate": 0.05,
+    "max_depth": 7,
+    "num_leaves": 63,
+    "min_child_samples": 80,
+    "subsample": 0.8,
+    "bagging_freq": 1,
+    "calibrated_thresholds": {
+      "t_singleton": 0.7,
+      "t_match": 0.7
+    }
+  },
+  "bundle_contents": {
+    "b0_portable_bundle.joblib": "Training, calibration, and evaluation feature arrays and labels for D2",
+    "calibration_predictions.parquet": "Per-pair probabilities and match indicators on calibration_5k",
+    "screen_predictions.parquet": "Per-pair probabilities and match indicators on screen_2k",
+    "record_text_provenance.joblib": "Raw & normalized texts for queries and targets for D3 neural models"
+  }
+}

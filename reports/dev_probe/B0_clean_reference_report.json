@@ -1,0 +1,89 @@
+{
+  "experiment": "D1-01 Clean Reference Baseline B0",
+  "eval_manifest": "screen_2k",
+  "n_eval_queries": 2000,
+  "thresholds": {
+    "t_singleton": 0.7,
+    "t_match": 0.7
+  },
+  "metrics": {
+    "final_macro_f05": 0.9045857751216922,
+    "oracle_macro_f05": 0.9851593447117049,
+    "total_loss": 0.09541422487830775,
+    "retrieval_loss": 0.014840655288295146,
+    "matcher_loss": 0.0805735695900126,
+    "singleton_accuracy": 0.8762886597938144,
+    "singleton_false_merges": 12,
+    "total_singletons": 97
+  },
+  "by_country": {
+    "India": {
+      "macro_f05": 0.8752989791177408,
+      "oracle_macro_f05": 0.974535801901907,
+      "retrieval_loss": 0.02546419809809297,
+      "matcher_loss": 0.09923682278416623,
+      "total_loss": 0.1247010208822592,
+      "n_queries": 1000
+    },
+    "US": {
+      "macro_f05": 0.9338725711256357,
+      "oracle_macro_f05": 0.9957828875215025,
+      "retrieval_loss": 0.004217112478497542,
+      "matcher_loss": 0.06191031639586675,
+      "total_loss": 0.06612742887436429,
+      "n_queries": 1000
+    }
+  },
+  "feature_gains_top10": [
+    [
+      "rrf_best",
+      934004.4226954393
+    ],
+    [
+      "addr_word_jac",
+      222767.2603106603
+    ],
+    [
+      "house_equal",
+      115888.07502735712
+    ],
+    [
+      "name_partial",
+      84134.14594943427
+    ],
+    [
+      "addr_set",
+      77490.92494984694
+    ],
+    [
+      "n_channels",
+      59549.437110292885
+    ],
+    [
+      "name_sort",
+      50102.32141700689
+    ],
+    [
+      "name_len_ratio",
+      47900.62068026752
+    ],
+    [
+      "name_wratio",
+      44270.81891460668
+    ],
+    [
+      "addr_sort",
+      38068.41039380037
+    ]
+  ],
+  "timing_seconds": {
+    "total": 2893.703725337982,
+    "retrieval_India": 1145.9792785644531,
+    "features_India": 30.228216886520386,
+    "retrieval_US": 1316.4607515335083,
+    "features_US": 30.439038515090942,
+    "lgb_oof_train": 37.25698232650757,
+    "calibration": 17.578227996826172,
+    "evaluation": 1.135948896408081
+  }
+}

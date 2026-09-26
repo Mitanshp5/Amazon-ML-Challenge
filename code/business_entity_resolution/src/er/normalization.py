@@ -155,10 +155,14 @@ def normalize_address_latin(s: str, country: str = "__default__") -> str:
 def name_core(name_unicode_norm: str) -> str:
     """Suffix-reduced view: strip trailing legal-form tokens. Feature only."""
     toks = name_unicode_norm.split()
-    while toks and " ".join(toks[-2:]) in LEGAL_SUFFIX_TOKENS:
-        toks = toks[:-2]
-    while toks and toks[-1] in LEGAL_SUFFIX_TOKENS:
-        toks = toks[:-1]
+    changed = True
+    while changed and toks:
+        changed = False
+        for n in (4, 3, 2, 1):
+            if len(toks) >= n and " ".join(toks[-n:]) in LEGAL_SUFFIX_TOKENS:
+                toks = toks[:-n]
+                changed = True
+                break
     return " ".join(toks)
 
 

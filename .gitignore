@@ -20,11 +20,20 @@ venv/
 *.parquet
 *.pkl
 *.bin
+*.joblib
 
 # Added during audit/E00
 graphify-out/
 .opencode/
 tmp/
-splits/
+splits/*
+!splits/f05-v1/
+splits/f05-v1/*
+!splits/f05-v1/parallel-v1/
 .pytest_cache/
 cache/
+
+# Allow parallel distribution bundle files (< 32 MB each) to sync seamlessly via GitHub
+!runs/parallel-v1/**
+!runs/parallel-v1/**/*.joblib
+!runs/parallel-v1/**/*.parquet

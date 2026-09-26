@@ -1,0 +1,170 @@
+[
+  {
+    "depth_label": "K=50",
+    "k": 50,
+    "overall": {
+      "oracle_macro_f05": 0.9779577142973775,
+      "retrieval_loss": 0.022042285702622455,
+      "pair_recall_pct": 94.46043165467626,
+      "mean_candidates": 50.0
+    },
+    "by_country": {
+      "India": {
+        "oracle_macro_f05": 0.9640626431338004,
+        "retrieval_loss": 0.03593735686619959,
+        "pair_recall_pct": 91.55052264808361,
+        "mean_candidates": 50.0,
+        "zero_hit_rate": 0.014783526927138331,
+        "complete_coverage_rate": 0.7845828933474129
+      },
+      "US": {
+        "oracle_macro_f05": 0.9918527854609535,
+        "retrieval_loss": 0.008147214539046543,
+        "pair_recall_pct": 97.3188819167142,
+        "mean_candidates": 50.0,
+        "zero_hit_rate": 0.0010460251046025104,
+        "complete_coverage_rate": 0.9152719665271967
+      }
+    }
+  },
+  {
+    "depth_label": "K=100 (B0)",
+    "k": 100,
+    "overall": {
+      "oracle_macro_f05": 0.9851593447117049,
+      "retrieval_loss": 0.014840655288295146,
+      "pair_recall_pct": 96.15827338129496,
+      "mean_candidates": 100.0
+    },
+    "by_country": {
+      "India": {
+        "oracle_macro_f05": 0.974535801901907,
+        "retrieval_loss": 0.02546419809809297,
+        "pair_recall_pct": 93.84436701509871,
+        "mean_candidates": 100.0,
+        "zero_hit_rate": 0.010559662090813094,
+        "complete_coverage_rate": 0.8331573389651531
+      },
+      "US": {
+        "oracle_macro_f05": 0.9957828875215025,
+        "retrieval_loss": 0.004217112478497542,
+        "pair_recall_pct": 98.4312606959498,
+        "mean_candidates": 100.0,
+        "zero_hit_rate": 0.0,
+        "complete_coverage_rate": 0.9476987447698745
+      }
+    }
+  },
+  {
+    "depth_label": "K=150",
+    "k": 150,
+    "overall": {
+      "oracle_macro_f05": 0.9862522883548739,
+      "retrieval_loss": 0.013747711645126115,
+      "pair_recall_pct": 96.5179856115108,
+      "mean_candidates": 150.0
+    },
+    "by_country": {
+      "India": {
+        "oracle_macro_f05": 0.9758299828553623,
+        "retrieval_loss": 0.024170017144637734,
+        "pair_recall_pct": 94.33797909407666,
+        "mean_candidates": 150.0,
+        "zero_hit_rate": 0.010559662090813094,
+        "complete_coverage_rate": 0.8479408658922915
+      },
+      "US": {
+        "oracle_macro_f05": 0.9966745938543853,
+        "retrieval_loss": 0.0033254061456147177,
+        "pair_recall_pct": 98.65944095835711,
+        "mean_candidates": 150.0,
+        "zero_hit_rate": 0.0,
+        "complete_coverage_rate": 0.952928870292887
+      }
+    }
+  },
+  {
+    "depth_label": "K=200",
+    "k": 200,
+    "overall": {
+      "oracle_macro_f05": 0.9868571222464724,
+      "retrieval_loss": 0.013142877753527626,
+      "pair_recall_pct": 96.76258992805755,
+      "mean_candidates": 200.0
+    },
+    "by_country": {
+      "India": {
+        "oracle_macro_f05": 0.9766527519979843,
+        "retrieval_loss": 0.023347248002015708,
+        "pair_recall_pct": 94.65737514518003,
+        "mean_candidates": 200.0,
+        "zero_hit_rate": 0.010559662090813094,
+        "complete_coverage_rate": 0.8542766631467793
+      },
+      "US": {
+        "oracle_macro_f05": 0.9970614924949603,
+        "retrieval_loss": 0.002938507505039656,
+        "pair_recall_pct": 98.83057615516257,
+        "mean_candidates": 200.0,
+        "zero_hit_rate": 0.0,
+        "complete_coverage_rate": 0.9581589958158996
+      }
+    }
+  },
+  {
+    "depth_label": "K=250",
+    "k": 250,
+    "overall": {
+      "oracle_macro_f05": 0.9887958482807867,
+      "retrieval_loss": 0.011204151719213296,
+      "pair_recall_pct": 97.10791366906474,
+      "mean_candidates": 250.0
+    },
+    "by_country": {
+      "India": {
+        "oracle_macro_f05": 0.9802233858847947,
+        "retrieval_loss": 0.01977661411520526,
+        "pair_recall_pct": 95.23809523809523,
+        "mean_candidates": 250.0,
+        "zero_hit_rate": 0.007391763463569166,
+        "complete_coverage_rate": 0.866948257655755
+      },
+      "US": {
+        "oracle_macro_f05": 0.9973683106767786,
+        "retrieval_loss": 0.0026316893232214422,
+        "pair_recall_pct": 98.94466628636623,
+        "mean_candidates": 250.0,
+        "zero_hit_rate": 0.0,
+        "complete_coverage_rate": 0.9623430962343096
+      }
+    }
+  },
+  {
+    "depth_label": "Untrimmed (Natural Union)",
+    "k": "untrimmed",
+    "overall": {
+      "oracle_macro_f05": 0.9904523688435571,
+      "retrieval_loss": 0.00954763115644286,
+      "pair_recall_pct": 97.38129496402877,
+      "mean_candidates": 339.244
+    },
+    "by_country": {
+      "India": {
+        "oracle_macro_f05": 0.9832163512527601,
+        "retrieval_loss": 0.01678364874723992,
+        "pair_recall_pct": 95.67363530778165,
+        "mean_candidates": 345.846,
+        "zero_hit_rate": 0.005279831045406547,
+        "complete_coverage_rate": 0.8796198521647307
+      },
+      "US": {
+        "oracle_macro_f05": 0.9976883864343542,
+        "retrieval_loss": 0.002311613565645798,
+        "pair_recall_pct": 99.05875641756988,
+        "mean_candidates": 332.642,
+        "zero_hit_rate": 0.0,
+        "complete_coverage_rate": 0.9654811715481172
+      }
+    }
+  }
+]
