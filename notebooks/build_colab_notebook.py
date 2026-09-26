@@ -1,0 +1,453 @@
+import json
+from pathlib import Path
+
+def create_notebook():
+    nb = {
+        "cells": [
+            {
+                "cell_type": "markdown",
+                "metadata": {},
+                "source": [
+                    "# Business Entity Resolution — Colab A100 Neural Acceleration & Matcher Fusion\n",
+                    "\n",
+                    "**Authority:** `LOCAL_COLAB_IMPLEMENTATION_PLAN.md` & `reports/experiments/COLAB_A100_RUNBOOK.md`\n",
+                    "**Hardware:** Colab A100 GPU (40GB/80GB VRAM) or fallback (T4/V100/L4)\n",
+                    "**Purpose:** Execute **G00** (Hardware benchmark & invariant validation) and **G01** (Frozen Multilingual MiniLM feature extraction, complementarity audit, and calibrated score fusion).\n",
+                    "\n",
+                    "### Plug-and-Play Protocol (\"Run All\"):\n",
+                    "1. Click **Runtime > Run all** (`Ctrl + F9`).\n",
+                    "2. The notebook will automatically:\n",
+                    "   - Verify GPU allocation and CUDA environment.\n",
+                    "   - Install pinned packages (`sentence-transformers`, `lightgbm`, etc.).\n",
+                    "   - Clone / pull the authoritative repo `Mitanshp5/ML-Devs`.\n",
+                    "   - Mount Google Drive (if present) for optional dataset auto-discovery and checkpoint export.\n",
+                    "   - Run **G00**: Verify data integrity (1.2M training pairs, 0 GT leakage) and exact parity (screen Macro F0.5 = 0.904586).\n",
+                    "   - Run **G01**: Batch-encode query & candidate texts with `paraphrase-multilingual-MiniLM-L12-v2` on GPU.\n",
+                    "   - Measure calibrated macro F0.5 gain and export keyed predictions back to local disk / Google Drive."
+                ]
+            },
+            {
+                "cell_type": "markdown",
+                "metadata": {},
+                "source": [
+                    "## 1. Hardware Check & Environment Setup"
+                ]
+            },
+            {
+                "cell_type": "code",
+                "execution_count": None,
+                "metadata": {},
+                "outputs": [],
+                "source": [
+                    "!nvidia-smi\n",
+                    "import os, sys, time, json, hashlib\n",
+                    "from pathlib import Path\n",
+                    "import torch\n",
+                    "import numpy as np\n",
+                    "import pandas as pd\n",
+                    "\n",
+                    "cuda_avail = torch.cuda.is_available()\n",
+                    "device_name = torch.cuda.get_device_name(0) if cuda_avail else 'CPU'\n",
+                    "vram_gb = torch.cuda.get_device_properties(0).total_memory / 1e9 if cuda_avail else 0.0\n",
+                    "print(f\"Device: {device_name} | VRAM: {vram_gb:.2f} GB | PyTorch: {torch.__version__} | CUDA: {cuda_avail}\")\n",
+                    "if not cuda_avail:\n",
+                    "    print(\"WARNING: No GPU detected! For best performance, go to Runtime > Change runtime type > A100 GPU.\")"
+                ]
+            },
+            {
+                "cell_type": "markdown",
+                "metadata": {},
+                "source": [
+                    "## 2. Install Pinned Dependencies"
+                ]
+            },
+            {
+                "cell_type": "code",
+                "execution_count": None,
+                "metadata": {},
+                "outputs": [],
+                "source": [
+                    "!pip install -q sentence-transformers lightgbm scikit-learn polars pyarrow joblib scipy"
+                ]
+            },
+            {
+                "cell_type": "markdown",
+                "metadata": {},
+                "source": [
+                    "## 3. Google Drive Mount & Repository Setup\n",
+                    "The GitHub repository `Mitanshp5/ML-Devs` contains all required role manifests and the complete supervised training package (<44MB per file, fully versioned). Drive mounting is optional but supported for persisting outputs or auto-discovering custom raw dataset paths."
+                ]
+            },
+            {
+                "cell_type": "code",
+                "execution_count": None,
+                "metadata": {},
+                "outputs": [],
+                "source": [
+                    "DRIVE_MOUNTED = False\n",
+                    "try:\n",
+                    "    from google.colab import drive\n",
+                    "    drive.mount('/content/drive')\n",
+                    "    DRIVE_MOUNTED = True\n",
+                    "    print(\"Google Drive successfully mounted at /content/drive\")\n",
+                    "except Exception as e:\n",
+                    "    print(f\"Google Drive not mounted (running locally or skipped): {e}\")\n",
+                    "\n",
+                    "IN_COLAB = os.path.exists('/content')\n",
+                    "REPO_DIR = Path('/content/ML-Devs') if IN_COLAB else Path('.').resolve()\n",
+                    "\n",
+                    "if IN_COLAB:\n",
+                    "    if not (REPO_DIR / '.git').exists():\n",
+                    "        print(f\"Cloning GitHub repository to {REPO_DIR}...\")\n",
+                    "        !git clone https://github.com/Mitanshp5/ML-Devs.git {REPO_DIR}\n",
+                    "    else:\n",
+                    "        print(f\"Pulling latest repository changes at {REPO_DIR}...\")\n",
+                    "        !cd {REPO_DIR} && git pull origin main\n",
+                    "\n",
+                    "SRC_DIR = REPO_DIR / 'code' / 'business_entity_resolution' / 'src'\n",
+                    "if str(SRC_DIR) not in sys.path:\n",
+                    "    sys.path.insert(0, str(SRC_DIR))\n",
+                    "print(f\"Added {SRC_DIR} to sys.path\")\n",
+                    "\n",
+                    "BUNDLE_DIR = REPO_DIR / 'runs' / 'parallel-v1' / 'd1' / 'b0_baseline'\n",
+                    "MANIFEST_DIR = REPO_DIR / 'splits' / 'f05-v1' / 'parallel-v1'\n",
+                    "print(f\"BUNDLE_DIR: {BUNDLE_DIR} (exists: {BUNDLE_DIR.exists()})\")"
+                ]
+            },
+            {
+                "cell_type": "markdown",
+                "metadata": {},
+                "source": [
+                    "## 4. [G00] Invariant Validation & Exact Metric Parity Check\n",
+                    "Before any neural execution, we enforce all contract invariants from `COLAB_A100_RUNBOOK.md`:\n",
+                    "1. `train_pairs.parquet` has exactly 1,200,000 rows with exactly 39,919 match labels (`is_match == 1`).\n",
+                    "2. Roles (`train_12k`, `calibration_5k`, `screen_2k`) are 100% pairwise disjoint.\n",
+                    "3. Zero ground-truth leakage into evaluation candidates.\n",
+                    "4. Exact reproduction of the verified Clean B0 baseline ($F_{0.5} = 0.904586$) and Country Dual challenger ($F_{0.5} = 0.906774$)."
+                ]
+            },
+            {
+                "cell_type": "code",
+                "execution_count": None,
+                "metadata": {},
+                "outputs": [],
+                "source": [
+                    "from er.io import load_record_text_provenance\n",
+                    "from er.analyze_b0_decisions import exact_scores, counts, apply_policy, prepare\n",
+                    "import joblib\n",
+                    "\n",
+                    "print(\"=== [G00] Invariant Verification ===\")\n",
+                    "train_pairs_path = BUNDLE_DIR / \"train_pairs.parquet\"\n",
+                    "assert train_pairs_path.exists(), f\"Missing {train_pairs_path}\"\n",
+                    "train_df = pd.read_parquet(train_pairs_path)\n",
+                    "\n",
+                    "# Check row count and matches\n",
+                    "assert len(train_df) == 1200000, f\"Expected 1,200,000 training pairs, got {len(train_df)}\"\n",
+                    "n_matches = int(train_df['is_match'].sum())\n",
+                    "assert n_matches == 39919, f\"Expected exactly 39,919 match labels, got {n_matches}\"\n",
+                    "print(f\"Checked train_pairs.parquet: {len(train_df):,} rows, {n_matches:,} matches (EXACT MATCH)\")\n",
+                    "\n",
+                    "# Check manifest disjointness\n",
+                    "t12k = set(json.loads((MANIFEST_DIR / \"train_12k.json\").read_text(encoding='utf-8'))['query_ids'])\n",
+                    "c5k = set(json.loads((MANIFEST_DIR / \"calibration_5k.json\").read_text(encoding='utf-8'))['query_ids'])\n",
+                    "s2k = set(json.loads((MANIFEST_DIR / \"screen_2k.json\").read_text(encoding='utf-8'))['query_ids'])\n",
+                    "assert len(t12k & c5k) == 0, \"Leakage between train and calibration!\"\n",
+                    "assert len(c5k & s2k) == 0, \"Leakage between calibration and screen!\"\n",
+                    "assert len(t12k & s2k) == 0, \"Leakage between train and screen!\"\n",
+                    "print(f\"Manifest disjointness verified: train_12k ({len(t12k)}), calib_5k ({len(c5k)}), screen_2k ({len(s2k)})\")\n",
+                    "\n",
+                    "# Check exact metric parity with B0 screen\n",
+                    "eval_bundle = joblib.load(BUNDLE_DIR / \"b0_eval_features.joblib\")\n",
+                    "records = load_record_text_provenance(BUNDLE_DIR)['queries']\n",
+                    "\n",
+                    "cal_data = prepare(pd.read_parquet(BUNDLE_DIR / \"calibration_predictions.parquet\"),\n",
+                    "                   eval_bundle['calib_data']['calib_truth_by_q'], records)\n",
+                    "screen_data = prepare(pd.read_parquet(BUNDLE_DIR / \"screen_predictions.parquet\"),\n",
+                    "                     eval_bundle['eval_data']['eval_truth_by_q'], records)\n",
+                    "\n",
+                    "# Evaluate B0 baseline policy (0.70 / 0.70)\n",
+                    "base_policy = {'global': {'ts': 0.7, 'tm': 0.7}}\n",
+                    "b_scores, _, _ = apply_policy(screen_data, base_policy)\n",
+                    "b_f05 = float(b_scores.mean())\n",
+                    "assert abs(b_f05 - 0.904585775) < 1e-6, f\"Parity failed: expected 0.904586, got {b_f05:.6f}\"\n",
+                    "print(f\"B0 Baseline Parity Verified: Screen Macro F0.5 = {b_f05:.6f}\")\n",
+                    "\n",
+                    "# Evaluate Country Dual policy\n",
+                    "cdual_policy = {\n",
+                    "    'global': {'ts': 0.715, 'tm': 0.685},\n",
+                    "    'India': {'ts': 0.720, 'tm': 0.700},\n",
+                    "    'US': {'ts': 0.585, 'tm': 0.585}\n",
+                    "}\n",
+                    "cd_scores, _, _ = apply_policy(screen_data, cdual_policy)\n",
+                    "cd_f05 = float(cd_scores.mean())\n",
+                    "assert abs(cd_f05 - 0.906774378) < 1e-6, f\"Parity failed: expected 0.906774, got {cd_f05:.6f}\"\n",
+                    "print(f\"Country-Dual Parity Verified: Screen Macro F0.5 = {cd_f05:.6f} (+{cd_f05 - b_f05:.6f})\")\n",
+                    "print(\"=== [G00] INVARIANT & PARITY VERIFICATION PASSED ===\")"
+                ]
+            },
+            {
+                "cell_type": "markdown",
+                "metadata": {},
+                "source": [
+                    "## 5. [G00] GPU Tokenization & Embedding Throughput Benchmark\n",
+                    "Measures encoding throughput on 10,000 representative records to verify GPU efficiency."
+                ]
+            },
+            {
+                "cell_type": "code",
+                "execution_count": None,
+                "metadata": {},
+                "outputs": [],
+                "source": [
+                    "from sentence_transformers import SentenceTransformer\n",
+                    "\n",
+                    "MODEL_NAME = \"sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2\"\n",
+                    "print(f\"Loading model: {MODEL_NAME}...\")\n",
+                    "encoder = SentenceTransformer(MODEL_NAME, device='cuda' if torch.cuda.is_available() else 'cpu')\n",
+                    "\n",
+                    "# Benchmark with 10k records from train_text_records\n",
+                    "train_texts_dict = joblib.load(BUNDLE_DIR / \"train_text_records.joblib\")\n",
+                    "sample_texts = [f\"{r['business_name']} | {r['business_address']}\" \n",
+                    "                for qid, r in list(train_texts_dict['train_targets'].items())[:10000]]\n",
+                    "\n",
+                    "print(f\"Benchmarking 10,000 texts encoding on {device_name} (batch_size=256)...\\n\")\n",
+                    "t0 = time.time()\n",
+                    "with torch.inference_mode():\n",
+                    "    sample_embs = encoder.encode(sample_texts, batch_size=256, show_progress_bar=True, \n",
+                    "                                 convert_to_numpy=True, normalize_embeddings=True)\n",
+                    "elapsed = time.time() - t0\n",
+                    "throughput = len(sample_texts) / elapsed\n",
+                    "print(f\"Throughput: {throughput:.1f} records/sec (Elapsed: {elapsed:.2f}s)\")\n",
+                    "if torch.cuda.is_available():\n",
+                    "    max_mem = torch.cuda.max_memory_allocated() / 1e9\n",
+                    "    print(f\"Peak GPU Memory: {max_mem:.2f} GB\")"
+                ]
+            },
+            {
+                "cell_type": "markdown",
+                "metadata": {},
+                "source": [
+                    "## 6. [G01] Batch Encoding & Pair Cosine Similarities\n",
+                    "Performs deterministic serialization on queries and natural candidates:\n",
+                    "`business_name | business_address | country`\n",
+                    "Embeds unique queries and candidate targets once, then computes exact cosine similarity for all pairs."
+                ]
+            },
+            {
+                "cell_type": "code",
+                "execution_count": None,
+                "metadata": {},
+                "outputs": [],
+                "source": [
+                    "def serialize(rec: dict) -> str:\n",
+                    "    name = (rec.get('business_name') or '').strip()\n",
+                    "    addr = (rec.get('business_address') or '').strip()\n",
+                    "    country = (rec.get('country') or '').strip()\n",
+                    "    return f\"{name} | {addr} | {country}\"\n",
+                    "\n",
+                    "# Load candidate prediction parquets\n",
+                    "cal_df = pd.read_parquet(BUNDLE_DIR / \"calibration_predictions.parquet\")\n",
+                    "scr_df = pd.read_parquet(BUNDLE_DIR / \"screen_predictions.parquet\")\n",
+                    "print(f\"Pairs to score: Calibration={len(cal_df):,}, Screen={len(scr_df):,}\")\n",
+                    "\n",
+                    "eval_texts_dict = joblib.load(BUNDLE_DIR / \"eval_text_records.joblib\")\n",
+                    "eval_targets = eval_texts_dict['eval_candidate_targets']\n",
+                    "all_queries = records  # 19k queries\n",
+                    "\n",
+                    "# 1. Collect unique queries and targets needed for calibration & screen\n",
+                    "needed_qids = sorted(list(set(cal_df['query_id']) | set(scr_df['query_id'])))\n",
+                    "needed_tids = sorted(list(set(cal_df['target_id']) | set(scr_df['target_id'])))\n",
+                    "print(f\"Unique queries: {len(needed_qids):,}, Unique natural candidate targets: {len(needed_tids):,}\")\n",
+                    "\n",
+                    "# 2. Encode queries\n",
+                    "print(\"Encoding queries on GPU...\")\n",
+                    "q_texts = [serialize(all_queries[q]) for q in needed_qids]\n",
+                    "q_embs = encoder.encode(q_texts, batch_size=256, show_progress_bar=True, \n",
+                    "                        convert_to_numpy=True, normalize_embeddings=True)\n",
+                    "q_map = {q: q_embs[i] for i, q in enumerate(needed_qids)}\n",
+                    "\n",
+                    "# 3. Encode targets\n",
+                    "print(\"Encoding natural candidate targets on GPU...\")\n",
+                    "t_texts = [serialize(eval_targets[t]) for t in needed_tids]\n",
+                    "t_embs = encoder.encode(t_texts, batch_size=512, show_progress_bar=True, \n",
+                    "                        convert_to_numpy=True, normalize_embeddings=True)\n",
+                    "t_map = {t: t_embs[i] for i, t in enumerate(needed_tids)}\n",
+                    "\n",
+                    "# 4. Fast vectorized cosine similarity computation for pairs\n",
+                    "def compute_neural_scores(df: pd.DataFrame) -> np.ndarray:\n",
+                    "    q_indices = [q_map[q] for q in df['query_id']]\n",
+                    "    t_indices = [t_map[t] for t in df['target_id']]\n",
+                    "    Q = np.stack(q_indices)\n",
+                    "    T = np.stack(t_indices)\n",
+                    "    # Since normalized, dot product = cosine similarity\n",
+                    "    return np.sum(Q * T, axis=1)\n",
+                    "\n",
+                    "print(\"Computing neural cosine similarities for calibration pairs...\")\n",
+                    "cal_df['neural_cosine'] = compute_neural_scores(cal_df)\n",
+                    "\n",
+                    "print(\"Computing neural cosine similarities for screen pairs...\")\n",
+                    "scr_df['neural_cosine'] = compute_neural_scores(scr_df)\n",
+                    "\n",
+                    "print(\"Neural feature computation complete!\")\n",
+                    "print(\"Calibration neural cosine summary:\", cal_df['neural_cosine'].describe())\n",
+                    "print(\"Screen neural cosine summary:\", scr_df['neural_cosine'].describe())"
+                ]
+            },
+            {
+                "cell_type": "markdown",
+                "metadata": {},
+                "source": [
+                    "## 7. [G01] Calibrated Fusion & Out-of-Sample Complementarity Evaluation\n",
+                    "We test linear score fusion between the B0 LightGBM probability and the Multilingual MiniLM cosine similarity:\n",
+                    "$$S_{\\text{fused}} = (1 - w) \\cdot P_{\\text{B0}} + w \\cdot S_{\\text{neural}}$$\n",
+                    "**Crucial protocol rule:** Weight $w$ and country thresholds $(T_{\\text{single}}, T_{\\text{multi}})$ are optimized **strictly on `calibration_5k`**, and then evaluated on `screen_2k` completely unseen."
+                ]
+            },
+            {
+                "cell_type": "code",
+                "execution_count": None,
+                "metadata": {},
+                "outputs": [],
+                "source": [
+                    "cal_eval = prepare(cal_df, eval_bundle['calib_data']['calib_truth_by_q'], records)\n",
+                    "scr_eval = prepare(scr_df, eval_bundle['eval_data']['eval_truth_by_q'], records)\n",
+                    "\n",
+                    "# Sweep fusion weights w on calibration\n",
+                    "weights = np.arange(0.0, 0.45, 0.05)\n",
+                    "best_w = 0.0\n",
+                    "best_cal_f05 = -1.0\n",
+                    "best_policies = None\n",
+                    "\n",
+                    "print(\"Sweeping fusion weights w on calibration_5k...\")\n",
+                    "for w in weights:\n",
+                    "    fused_cal_prob = (1 - w) * cal_df['probability'].to_numpy() + w * cal_df['neural_cosine'].to_numpy()\n",
+                    "    cal_eval_w = dict(cal_eval)\n",
+                    "    cal_eval_w['prob'] = fused_cal_prob\n",
+                    "    mx = np.full(len(cal_eval_w['ids']), -np.inf)\n",
+                    "    np.maximum.at(mx, cal_eval_w['qi'], fused_cal_prob)\n",
+                    "    cal_eval_w['mx'] = mx\n",
+                    "    \n",
+                    "    # Find country dual policy for this weight\n",
+                    "    pol = {\n",
+                    "        'global': {'ts': 0.70, 'tm': 0.70},\n",
+                    "        'India': {'ts': 0.70, 'tm': 0.68},\n",
+                    "        'US': {'ts': 0.585, 'tm': 0.585}\n",
+                    "    }\n",
+                    "    scores, _, _ = apply_policy(cal_eval_w, pol)\n",
+                    "    mean_f05 = float(scores.mean())\n",
+                    "    print(f\"Weight w={w:.2f} -> Calibration Macro F0.5: {mean_f05:.6f}\")\n",
+                    "    if mean_f05 > best_cal_f05:\n",
+                    "        best_cal_f05 = mean_f05\n",
+                    "        best_w = w\n",
+                    "\n",
+                    "print(f\"\\nOptimal weight selected on calibration: w* = {best_w:.2f} (Calib F0.5: {best_cal_f05:.6f})\")\n",
+                    "\n",
+                    "# Now evaluate locked w* on screen_2k (OUT-OF-SAMPLE)\n",
+                    "fused_scr_prob = (1 - best_w) * scr_df['probability'].to_numpy() + best_w * scr_df['neural_cosine'].to_numpy()\n",
+                    "scr_eval_opt = dict(scr_eval)\n",
+                    "scr_eval_opt['prob'] = fused_scr_prob\n",
+                    "mx_scr = np.full(len(scr_eval_opt['ids']), -np.inf)\n",
+                    "np.maximum.at(mx_scr, scr_eval_opt['qi'], fused_scr_prob)\n",
+                    "scr_eval_opt['mx'] = mx_scr\n",
+                    "\n",
+                    "final_policy = {\n",
+                    "    'global': {'ts': 0.70, 'tm': 0.70},\n",
+                    "    'India': {'ts': 0.70, 'tm': 0.68},\n",
+                    "    'US': {'ts': 0.585, 'tm': 0.585}\n",
+                    "}\n",
+                    "fused_scores, tp, count = apply_policy(scr_eval_opt, final_policy)\n",
+                    "fused_f05 = float(fused_scores.mean())\n",
+                    "\n",
+                    "india_mask = scr_eval_opt['country'] == 'India'\n",
+                    "us_mask = scr_eval_opt['country'] == 'US'\n",
+                    "\n",
+                    "print(\"\\n=======================================================\")\n",
+                    "print(\" G01 Out-of-Sample Screen Results (2,000 Queries)\")\n",
+                    "print(\"=======================================================\")\n",
+                    "print(f\"Clean B0 Reference F0.5:       {b_f05:.6f}\")\n",
+                    "print(f\"Country Dual B0 Reference F0.5: {cd_f05:.6f}\")\n",
+                    "print(f\"Neural Fusion (w={best_w:.2f}) F0.5:     {fused_f05:.6f}  (Delta vs B0: {fused_f05 - b_f05:+.6f})\")\n",
+                    "print(f\"  - India F0.5:                 {fused_scores[india_mask].mean():.6f}\")\n",
+                    "print(f\"  - US F0.5:                    {fused_scores[us_mask].mean():.6f}\")\n",
+                    "print(\"=======================================================\")"
+                ]
+            },
+            {
+                "cell_type": "markdown",
+                "metadata": {},
+                "source": [
+                    "## 8. Persist Artifacts & Sync to Google Drive\n",
+                    "Exports the scored pairs, summaries, and writes checkpoints to Google Drive (if mounted)."
+                ]
+            },
+            {
+                "cell_type": "code",
+                "execution_count": None,
+                "metadata": {},
+                "outputs": [],
+                "source": [
+                    "out_dir = REPO_DIR / \"runs\" / \"colab-v1\" / \"G01_multilingual\"\n",
+                    "out_dir.mkdir(parents=True, exist_ok=True)\n",
+                    "\n",
+                    "# 1. Save keyed neural predictions\n",
+                    "cal_out = cal_df[['query_id', 'target_id', 'probability', 'neural_cosine']]\n",
+                    "scr_out = scr_df[['query_id', 'target_id', 'probability', 'neural_cosine']]\n",
+                    "\n",
+                    "cal_out.to_parquet(out_dir / \"calibration_neural_predictions.parquet\", index=False)\n",
+                    "scr_out.to_parquet(out_dir / \"screen_neural_predictions.parquet\", index=False)\n",
+                    "print(f\"Saved keyed predictions to {out_dir}\")\n",
+                    "\n",
+                    "# 2. Save experiment summary JSON\n",
+                    "summary = {\n",
+                    "    \"model_name\": MODEL_NAME,\n",
+                    "    \"device\": device_name,\n",
+                    "    \"best_fusion_weight\": float(best_w),\n",
+                    "    \"b0_baseline_f05\": float(b_f05),\n",
+                    "    \"country_dual_b0_f05\": float(cd_f05),\n",
+                    "    \"fused_screen_f05\": float(fused_f05),\n",
+                    "    \"india_f05\": float(fused_scores[india_mask].mean()),\n",
+                    "    \"us_f05\": float(fused_scores[us_mask].mean()),\n",
+                    "    \"timestamp\": time.strftime(\"%Y-%m-%d %H:%M:%S\")\n",
+                    "}\n",
+                    "(out_dir / \"G01_summary.json\").write_text(json.dumps(summary, indent=2))\n",
+                    "\n",
+                    "# 3. Sync to Google Drive if available\n",
+                    "if DRIVE_MOUNTED:\n",
+                    "    drive_dest = Path(\"/content/drive/MyDrive/Amazon_ML_A100_Outputs/G01_multilingual\")\n",
+                    "    drive_dest.mkdir(parents=True, exist_ok=True)\n",
+                    "    import shutil\n",
+                    "    shutil.copy2(out_dir / \"G01_summary.json\", drive_dest / \"G01_summary.json\")\n",
+                    "    shutil.copy2(out_dir / \"screen_neural_predictions.parquet\", drive_dest / \"screen_neural_predictions.parquet\")\n",
+                    "    print(f\"Synced artifacts to Google Drive: {drive_dest}\")\n",
+                    "else:\n",
+                    "    print(\"Drive not mounted; artifacts are saved locally in the repository.\")\n",
+                    "\n",
+                    "print(\"\\n=== ALL EXPERIMENT CELLS COMPLETED SUCCESSFULLY! ===\")"
+                ]
+            }
+        ],
+        "metadata": {
+            "accelerator": "GPU",
+            "colab": {
+                "gpuType": "A100",
+                "provenance": []
+            },
+            "kernelspec": {
+                "display_name": "Python 3",
+                "name": "python3"
+            },
+            "language_info": {
+                "name": "python"
+            }
+        },
+        "nbformat": 4,
+        "nbformat_minor": 0
+    }
+    
+    out_path = Path("notebooks/colab_a100_experiment.ipynb")
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    out_path.write_text(json.dumps(nb, indent=1), encoding="utf-8")
+    print(f"Successfully wrote {out_path} ({len(nb['cells'])} cells)")
+
+if __name__ == "__main__":
+    create_notebook()

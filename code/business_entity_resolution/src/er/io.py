@@ -81,3 +81,4 @@ def load_record_text_provenance(bundle_dir: str | Path = "runs/parallel-v1/d1/b0
         return joblib.load(single_path)
     else:
         raise FileNotFoundError(f"Could not find text provenance in {bundle_dir}")
+

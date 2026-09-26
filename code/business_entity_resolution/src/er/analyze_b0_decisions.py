@@ -12,6 +12,8 @@ import joblib
 import numpy as np
 import pandas as pd
 
+from er.io import load_record_text_provenance
+
 def exact_scores(g, tp, count):
     denom = g + 4 * count
     out = np.divide(5.0 * tp, denom, out=np.zeros_like(tp, dtype=float), where=denom > 0)
@@ -90,7 +92,7 @@ def main():
     dest = Path('runs/parallel-v1/d1/decision_audit_v1')
     dest.mkdir(parents=True, exist_ok=True)
     bundle = joblib.load(root / 'b0_eval_features.joblib')
-    records = joblib.load(root / 'record_text_provenance.joblib')['queries']
+    records = load_record_text_provenance(root)['queries']
     data = {}
     for role, prefix, filename in [('calibration', 'calib', 'calibration_predictions.parquet'),
                                     ('screen', 'eval', 'screen_predictions.parquet')]:

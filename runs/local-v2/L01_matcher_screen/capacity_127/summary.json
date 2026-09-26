@@ -1,0 +1,194 @@
+{
+  "arm_name": "capacity_127",
+  "config": {
+    "num_leaves": 127,
+    "max_depth": 9,
+    "min_child_samples": 80,
+    "learning_rate": 0.05,
+    "subsample": 0.8,
+    "colsample_bytree": 0.8,
+    "description": "Capacity arm (127 leaves, depth 9, min_child 80)"
+  },
+  "best_iterations": [
+    420,
+    442,
+    433
+  ],
+  "mean_best_iteration": 431,
+  "timings": {
+    "oof_train_s": 31.588502407073975,
+    "refit_s": 8.134389400482178,
+    "total_s": 47.303847551345825
+  },
+  "policies": {
+    "baseline": {
+      "global": {
+        "ts": 0.7,
+        "tm": 0.7
+      }
+    },
+    "fine_global": {
+      "global": {
+        "ts": 0.68,
+        "tm": 0.68
+      }
+    },
+    "fine_dual": {
+      "global": {
+        "ts": 0.735,
+        "tm": 0.695,
+        "calibration_f05": 0.9118327809507529
+      }
+    },
+    "country_dual": {
+      "global": {
+        "ts": 0.735,
+        "tm": 0.695,
+        "calibration_f05": 0.9118327809507529
+      },
+      "India": {
+        "ts": 0.675,
+        "tm": 0.675,
+        "calibration_f05": 0.8883226574419381
+      },
+      "US": {
+        "ts": 0.59,
+        "tm": 0.59,
+        "calibration_f05": 0.9366171106952054
+      }
+    },
+    "frozen_b0_country_policy": {
+      "global": {
+        "ts": 0.715,
+        "tm": 0.685
+      },
+      "India": {
+        "ts": 0.72,
+        "tm": 0.7
+      },
+      "US": {
+        "ts": 0.585,
+        "tm": 0.585
+      }
+    }
+  },
+  "results": {
+    "baseline": {
+      "calib_macro_f05": 0.9112961780777565,
+      "screen_macro_f05": 0.9061311016111863,
+      "screen_india_f05": 0.877876103234029,
+      "screen_us_f05": 0.9343860999883434,
+      "delta_vs_b0_ref": 0.001545326489497345,
+      "paired_95_ci": [
+        -0.007167146987972613,
+        0.009732857668057092
+      ],
+      "pair_precision": 0.9641434262948207,
+      "pair_recall": 0.8356834532374101,
+      "singleton_false_merges": 11,
+      "false_empty_non_singletons": 44
+    },
+    "fine_global": {
+      "calib_macro_f05": 0.9115975427719822,
+      "screen_macro_f05": 0.9059024392112697,
+      "screen_india_f05": 0.8770200659495702,
+      "screen_us_f05": 0.9347848124729692,
+      "delta_vs_b0_ref": 0.0013166640895807546,
+      "paired_95_ci": [
+        -0.007539828162855856,
+        0.009628328119430936
+      ],
+      "pair_precision": 0.9614497528830313,
+      "pair_recall": 0.8397122302158273,
+      "singleton_false_merges": 12,
+      "false_empty_non_singletons": 42
+    },
+    "fine_dual": {
+      "calib_macro_f05": 0.9118327809507467,
+      "screen_macro_f05": 0.9050037987669716,
+      "screen_india_f05": 0.8770855604434862,
+      "screen_us_f05": 0.9329220370904571,
+      "delta_vs_b0_ref": 0.00041802364528265024,
+      "paired_95_ci": [
+        -0.008416202953188184,
+        0.008660472842123236
+      ],
+      "pair_precision": 0.9641672196416722,
+      "pair_recall": 0.8362589928057554,
+      "singleton_false_merges": 10,
+      "false_empty_non_singletons": 49
+    },
+    "country_dual": {
+      "calib_macro_f05": 0.9124698840685669,
+      "screen_macro_f05": 0.9072694508726977,
+      "screen_india_f05": 0.8777166596347222,
+      "screen_us_f05": 0.9368222421106731,
+      "delta_vs_b0_ref": 0.002683675751008807,
+      "paired_95_ci": [
+        -0.005768390071061593,
+        0.010812234278568172
+      ],
+      "pair_precision": 0.9576367472812856,
+      "pair_recall": 0.8489208633093526,
+      "singleton_false_merges": 14,
+      "false_empty_non_singletons": 37
+    },
+    "frozen_b0_country_policy": {
+      "calib_macro_f05": 0.9120256695557563,
+      "screen_macro_f05": 0.907204554218909,
+      "screen_india_f05": 0.8770427699006957,
+      "screen_us_f05": 0.9373663385371224,
+      "delta_vs_b0_ref": 0.002618779097220081,
+      "paired_95_ci": [
+        -0.00594034943937546,
+        0.01086692253954442
+      ],
+      "pair_precision": 0.9603135717785399,
+      "pair_recall": 0.8460431654676259,
+      "singleton_false_merges": 12,
+      "false_empty_non_singletons": 42
+    }
+  },
+  "top_features": [
+    [
+      "rrf_best",
+      936491.5804535856
+    ],
+    [
+      "addr_word_jac",
+      226434.11655206128
+    ],
+    [
+      "house_equal",
+      115508.27674609999
+    ],
+    [
+      "name_partial",
+      84571.77421896833
+    ],
+    [
+      "addr_set",
+      75558.87164778521
+    ],
+    [
+      "n_channels",
+      59837.03876205889
+    ],
+    [
+      "name_sort",
+      52043.974353385376
+    ],
+    [
+      "name_len_ratio",
+      50649.159702039455
+    ],
+    [
+      "name_wratio",
+      43974.62410703961
+    ],
+    [
+      "addr_sort",
+      38737.07438917036
+    ]
+  ]
+}

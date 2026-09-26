@@ -1,0 +1,194 @@
+{
+  "arm_name": "control_b0",
+  "config": {
+    "num_leaves": 63,
+    "max_depth": 7,
+    "min_child_samples": 80,
+    "learning_rate": 0.05,
+    "subsample": 0.8,
+    "colsample_bytree": 0.8,
+    "description": "Control B0 reference parameters (63 leaves, depth 7, min_child 80)"
+  },
+  "best_iterations": [
+    718,
+    691,
+    821
+  ],
+  "mean_best_iteration": 743,
+  "timings": {
+    "oof_train_s": 34.918553590774536,
+    "refit_s": 10.463290691375732,
+    "total_s": 54.07278394699097
+  },
+  "policies": {
+    "baseline": {
+      "global": {
+        "ts": 0.7,
+        "tm": 0.7
+      }
+    },
+    "fine_global": {
+      "global": {
+        "ts": 0.665,
+        "tm": 0.665
+      }
+    },
+    "fine_dual": {
+      "global": {
+        "ts": 0.715,
+        "tm": 0.685,
+        "calibration_f05": 0.9127410134499476
+      }
+    },
+    "country_dual": {
+      "global": {
+        "ts": 0.715,
+        "tm": 0.685,
+        "calibration_f05": 0.9127410134499476
+      },
+      "India": {
+        "ts": 0.72,
+        "tm": 0.7,
+        "calibration_f05": 0.8892605953548575
+      },
+      "US": {
+        "ts": 0.585,
+        "tm": 0.585,
+        "calibration_f05": 0.938968032125654
+      }
+    },
+    "frozen_b0_country_policy": {
+      "global": {
+        "ts": 0.715,
+        "tm": 0.685
+      },
+      "India": {
+        "ts": 0.72,
+        "tm": 0.7
+      },
+      "US": {
+        "ts": 0.585,
+        "tm": 0.585
+      }
+    }
+  },
+  "results": {
+    "baseline": {
+      "calib_macro_f05": 0.9120597436252846,
+      "screen_macro_f05": 0.9045857751216889,
+      "screen_india_f05": 0.8752989791177422,
+      "screen_us_f05": 0.9338725711256358,
+      "delta_vs_b0_ref": 0.0,
+      "paired_95_ci": [
+        -0.009000006515998825,
+        0.008346057697329603
+      ],
+      "pair_precision": 0.9646531695984069,
+      "pair_recall": 0.8364028776978417,
+      "singleton_false_merges": 12,
+      "false_empty_non_singletons": 48
+    },
+    "fine_global": {
+      "calib_macro_f05": 0.9123665068378904,
+      "screen_macro_f05": 0.9042939308031267,
+      "screen_india_f05": 0.8739576517211172,
+      "screen_us_f05": 0.9346302098851361,
+      "delta_vs_b0_ref": -0.0002918443185622177,
+      "paired_95_ci": [
+        -0.00898533973139814,
+        0.00821316768736108
+      ],
+      "pair_precision": 0.9595744680851064,
+      "pair_recall": 0.8435971223021582,
+      "singleton_false_merges": 14,
+      "false_empty_non_singletons": 43
+    },
+    "fine_dual": {
+      "calib_macro_f05": 0.912741013449942,
+      "screen_macro_f05": 0.9045986318873442,
+      "screen_india_f05": 0.8754997397381865,
+      "screen_us_f05": 0.9336975240365021,
+      "delta_vs_b0_ref": 1.2856765655322455e-05,
+      "paired_95_ci": [
+        -0.009037913754155951,
+        0.008306553438653856
+      ],
+      "pair_precision": 0.9627554383651945,
+      "pair_recall": 0.8405755395683453,
+      "singleton_false_merges": 12,
+      "false_empty_non_singletons": 48
+    },
+    "country_dual": {
+      "calib_macro_f05": 0.9141143137402512,
+      "screen_macro_f05": 0.9067743787310397,
+      "screen_india_f05": 0.8752989791177422,
+      "screen_us_f05": 0.9382497783443372,
+      "delta_vs_b0_ref": 0.0021886036093508032,
+      "paired_95_ci": [
+        -0.006803370901680013,
+        0.010478925829091941
+      ],
+      "pair_precision": 0.9606851549755302,
+      "pair_recall": 0.8473381294964029,
+      "singleton_false_merges": 13,
+      "false_empty_non_singletons": 43
+    },
+    "frozen_b0_country_policy": {
+      "calib_macro_f05": 0.9141143137402512,
+      "screen_macro_f05": 0.9067743787310397,
+      "screen_india_f05": 0.8752989791177422,
+      "screen_us_f05": 0.9382497783443372,
+      "delta_vs_b0_ref": 0.0021886036093508032,
+      "paired_95_ci": [
+        -0.006803370901680013,
+        0.010478925829091941
+      ],
+      "pair_precision": 0.9606851549755302,
+      "pair_recall": 0.8473381294964029,
+      "singleton_false_merges": 13,
+      "false_empty_non_singletons": 43
+    }
+  },
+  "top_features": [
+    [
+      "rrf_best",
+      934004.4226954393
+    ],
+    [
+      "addr_word_jac",
+      222767.2603106603
+    ],
+    [
+      "house_equal",
+      115888.07502735712
+    ],
+    [
+      "name_partial",
+      84134.14594943427
+    ],
+    [
+      "addr_set",
+      77490.92494984694
+    ],
+    [
+      "n_channels",
+      59549.437110292885
+    ],
+    [
+      "name_sort",
+      50102.32141700689
+    ],
+    [
+      "name_len_ratio",
+      47900.62068026752
+    ],
+    [
+      "name_wratio",
+      44270.81891460668
+    ],
+    [
+      "addr_sort",
+      38068.41039380037
+    ]
+  ]
+}

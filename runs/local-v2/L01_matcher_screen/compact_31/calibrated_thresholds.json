@@ -1,0 +1,52 @@
+{
+  "baseline": {
+    "global": {
+      "ts": 0.7,
+      "tm": 0.7
+    }
+  },
+  "fine_global": {
+    "global": {
+      "ts": 0.675,
+      "tm": 0.675
+    }
+  },
+  "fine_dual": {
+    "global": {
+      "ts": 0.705,
+      "tm": 0.675,
+      "calibration_f05": 0.9118620865700763
+    }
+  },
+  "country_dual": {
+    "global": {
+      "ts": 0.705,
+      "tm": 0.675,
+      "calibration_f05": 0.9118620865700763
+    },
+    "India": {
+      "ts": 0.72,
+      "tm": 0.675,
+      "calibration_f05": 0.887411527498096
+    },
+    "US": {
+      "ts": 0.595,
+      "tm": 0.595,
+      "calibration_f05": 0.9369473881840611
+    }
+  },
+  "frozen_b0_country_policy": {
+    "global": {
+      "ts": 0.715,
+      "tm": 0.685
+    },
+    "India": {
+      "ts": 0.72,
+      "tm": 0.7
+    },
+    "US": {
+      "ts": 0.585,
+      "tm": 0.585
+    }
+  }
+}
