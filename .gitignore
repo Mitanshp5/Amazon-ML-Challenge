@@ -27,3 +27,4 @@ graphify-out/
 tmp/
 splits/
 .pytest_cache/
+cache/

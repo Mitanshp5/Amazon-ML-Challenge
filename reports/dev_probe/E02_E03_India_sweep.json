@@ -1,0 +1,130 @@
+{
+  "meta": {
+    "country": "India",
+    "n_queries": 300,
+    "pool_size": 4133346,
+    "total_elapsed_sec": 1201.9,
+    "timestamp": "2026-09-26 12:51:38"
+  },
+  "individual_channels": {
+    "joint": {
+      "oracle_macro_f05": 0.9351196967663687,
+      "pair_recall": 0.8363123236124177,
+      "mean_k": 100.0,
+      "all_retrieved_rate": 0.6596491228070176,
+      "zero_hit_rate": 0.021052631578947368,
+      "total_queries": 300,
+      "singletons": 15,
+      "non_singletons": 285,
+      "total_positives": 1063,
+      "retrieved_positives": 889,
+      "elapsed_sec": 442.0,
+      "vocab": 150000
+    },
+    "name_only": {
+      "oracle_macro_f05": 0.7965680932497822,
+      "pair_recall": 0.6265286923800565,
+      "mean_k": 100.0,
+      "all_retrieved_rate": 0.3684210526315789,
+      "zero_hit_rate": 0.11228070175438597,
+      "total_queries": 300,
+      "singletons": 15,
+      "non_singletons": 285,
+      "total_positives": 1063,
+      "retrieved_positives": 666,
+      "elapsed_sec": 158.7,
+      "vocab": 150000
+    },
+    "address_only": {
+      "oracle_macro_f05": 0.9404825778342304,
+      "pair_recall": 0.8541862652869238,
+      "mean_k": 150.0,
+      "all_retrieved_rate": 0.6175438596491228,
+      "zero_hit_rate": 0.021052631578947368,
+      "total_queries": 300,
+      "singletons": 15,
+      "non_singletons": 285,
+      "total_positives": 1063,
+      "retrieved_positives": 908,
+      "elapsed_sec": 301.4,
+      "vocab": 150000
+    },
+    "structured": {
+      "oracle_macro_f05": 0.8127485861732382,
+      "pair_recall": 0.6970837253057385,
+      "mean_k": 56.88,
+      "all_retrieved_rate": 0.4456140350877193,
+      "zero_hit_rate": 0.13333333333333333,
+      "total_queries": 300,
+      "singletons": 15,
+      "non_singletons": 285,
+      "total_positives": 1063,
+      "retrieved_positives": 741,
+      "elapsed_sec": 0.0
+    }
+  },
+  "cumulative_unions": {
+    "joint_only": {
+      "oracle_macro_f05": 0.9351196967663687,
+      "pair_recall": 0.8363123236124177,
+      "mean_k": 100.0,
+      "all_retrieved_rate": 0.6596491228070176,
+      "zero_hit_rate": 0.021052631578947368,
+      "total_queries": 300,
+      "singletons": 15,
+      "non_singletons": 285,
+      "total_positives": 1063,
+      "retrieved_positives": 889
+    },
+    "union_joint_name": {
+      "oracle_macro_f05": 0.9351196967663687,
+      "pair_recall": 0.8363123236124177,
+      "mean_k": 173.01333333333332,
+      "all_retrieved_rate": 0.6596491228070176,
+      "zero_hit_rate": 0.021052631578947368,
+      "total_queries": 300,
+      "singletons": 15,
+      "non_singletons": 285,
+      "total_positives": 1063,
+      "retrieved_positives": 889
+    },
+    "union_all_lexical": {
+      "oracle_macro_f05": 0.9851366157181305,
+      "pair_recall": 0.9623706491063029,
+      "mean_k": 309.9766666666667,
+      "all_retrieved_rate": 0.887719298245614,
+      "zero_hit_rate": 0.007017543859649123,
+      "total_queries": 300,
+      "singletons": 15,
+      "non_singletons": 285,
+      "total_positives": 1063,
+      "retrieved_positives": 1023
+    },
+    "union_lexical_structured": {
+      "oracle_macro_f05": 0.9858318028839058,
+      "pair_recall": 0.9651928504233303,
+      "mean_k": 342.6433333333333,
+      "all_retrieved_rate": 0.8947368421052632,
+      "zero_hit_rate": 0.007017543859649123,
+      "total_queries": 300,
+      "singletons": 15,
+      "non_singletons": 285,
+      "total_positives": 1063,
+      "retrieved_positives": 1026
+    },
+    "union_all_incl_duplicate_expansion": {
+      "oracle_macro_f05": 0.9858318028839058,
+      "pair_recall": 0.9651928504233303,
+      "mean_k": 342.69,
+      "all_retrieved_rate": 0.8947368421052632,
+      "zero_hit_rate": 0.007017543859649123,
+      "total_queries": 300,
+      "singletons": 15,
+      "non_singletons": 285,
+      "total_positives": 1063,
+      "retrieved_positives": 1026,
+      "added_candidates_total": 14,
+      "elapsed_sec": 0.0
+    }
+  }
+}
