@@ -34,10 +34,17 @@ class ArcGPUDenseRetriever:
         core = ov.Core()
         available = core.available_devices
         self.device = device if device in available else "CPU"
+        ov_config = {
+            "PERFORMANCE_HINT": "THROUGHPUT",
+            "NUM_STREAMS": "AUTO",
+            "INFERENCE_PRECISION_HINT": "f16",
+        }
         self.tokenizer = AutoTokenizer.from_pretrained(str(self.model_dir))
-        self.model = OVModelForFeatureExtraction.from_pretrained(str(self.model_dir), device=self.device)
+        self.model = OVModelForFeatureExtraction.from_pretrained(
+            str(self.model_dir), device=self.device, ov_config=ov_config
+        )
 
-    def encode(self, texts: list[str], batch_size: int = 256, max_length: int = 128) -> np.ndarray:
+    def encode(self, texts: list[str], batch_size: int = 512, max_length: int = 128) -> np.ndarray:
         all_embeddings = []
         for i in range(0, len(texts), batch_size):
             batch_texts = texts[i:i + batch_size]

@@ -30,8 +30,11 @@ def build_vectorizer(min_df=2, max_df=0.4, max_features=150000,
                            max_df=max_df, sublinear_tf=True, dtype=np.float32)
 
 
+DEFAULT_THREADS = 12
+
+
 def topn_search(q_mat, p_mat_T_csr, pool_ids, top_k, threshold=0.0,
-                n_threads=8):
+                n_threads=DEFAULT_THREADS):
     """Deterministic top-N: sort by (-score, stable id order)."""
     mat = sp_matmul_topn(q_mat, p_mat_T_csr, top_n=top_k,
                          threshold=threshold, n_threads=n_threads)
@@ -59,7 +62,7 @@ def channel_texts(names, addrs, mode: str):
 
 
 def retrieve_channel(query_texts, pool_texts, pool_ids, query_ids,
-                     top_k=100, threshold=0.0, n_threads=8, **vec_kwargs):
+                     top_k=100, threshold=0.0, n_threads=DEFAULT_THREADS, **vec_kwargs):
     vec = build_vectorizer(**vec_kwargs)
     p_mat = vec.fit_transform(pool_texts)
     q_mat = vec.transform(query_texts)
