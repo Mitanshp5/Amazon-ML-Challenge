@@ -271,20 +271,19 @@ the best F0.5 if GPU budget allows.
 
 ---
 
-## 6. Competitive implementation plan (from RESEARCH_FINDINGS §9 + §12)
+## 6. Implementation upgrade plan
 
-Goal: best-of-field by porting every proven idea below into our pipeline, in
-dependency order. Each batch lists **what → where → done-when**. Sources in
-brackets. Batches are sequential; items within a batch are parallelizable.
+Goal: best-of-field by implementing every proven idea below into our pipeline, in
+dependency order. Each batch lists **what → where → done-when**.
+Batches are sequential; items within a batch are parallelizable.
 
 ### Batch U1 — Normalization upgrades (local notebook Phase 1; A100 training data)
-- [ ] GLEIF/ISO-20275 French legal-form table (`fr_legal_forms.json` content:
-  SAS/SICAV/SICAF + dotted variants) merged into `FR_ABBR`; disclose as
-  open-code-list map in methodology [R §11].
-- [ ] field reference dotted-variant suffix surfaces (`l.l.c.`, `d/b/a`, `[limited]`)
+- [ ] French legal-form table (SAS/SASU/SARL/SA/EURL/SICAV/SICAF + dotted
+  variants) merged into `FR_ABBR`; disclose as open-code-list map in methodology.
+- [ ] Dotted-variant suffix surfaces (`l.l.c.`, `d/b/a`, `[limited]`)
   + India addr abbrevs (`nagar`, `marg`) into `ABBR`/`LEGAL_SUFFIX`.
-- [ ] EMM abbreviation finders (merged-initials, CamelCase, punctuated-initials
-  regexes) as extra normalized name signals for DBA/trade-name noise [R §11].
+- [ ] Abbreviation finders (merged-initials, CamelCase, punctuated-initials
+  regexes) as extra normalized name signals for DBA/trade-name noise.
 - [ ] field helpers: `token_signature` / `longest_token` as backfill blocking
   keys; `M/s` prefix strip; NFKC+casefold switch evaluated vs NFKD.
 - [ ] Named ordered cleaning-rules pattern (replace ad-hoc regex
@@ -298,7 +297,7 @@ brackets. Batches are sequential; items within a batch are parallelizable.
   batches of 2500 (never `.toarray()`), `top_k=12`, representation = normalized
   name + first-3 address tokens, pickled candidate checkpoints — inside
   country shards (self-verified safe: 0/1,039,380 cross-country pairs).
-- [ ] `sparse_dot_topn` for the sparse top-K matmul (EMM pattern [R §11]);
+- [ ] `sparse_dot_topn` for the sparse top-K matmul;
   fall back to batched sklearn matmul where unavailable.
 - [ ] phonetic backfill branches: Soundex keys + `max_key_freq` pruning, gated on
   low ANN confidence / missing PIN (not blind union).
@@ -312,23 +311,23 @@ brackets. Batches are sequential; items within a batch are parallelizable.
 ### Batch U3 — Features + training (local Phase 3; A100 Phase 3)
 - [ ] 7-feature base (tfidf free from blocking, JW, token_sort/set, addr sort,
   3-level postal, len ratio) + `country_match`, `source_is_s2/s3`,
-  `address_missing`, char-3-gram Jaccard [R §2.1].
+  `address_missing`, char-3-gram Jaccard.
 - [ ] RapidFuzz SIMD only on hot paths (never pure-Python/difflib Levenshtein).
 - [ ] Training data: positives from GT + 1:6 hard negatives mined from blocking
-  candidates; **split by S1 entity** (GroupKFold) [R §11].
+  candidates; **split by S1 entity** (GroupKFold).
 - [ ] LightGBM starting params (lr 0.05, 63 leaves, depth 7, min_child 80,
   subsample/colsample 0.8, reg) → MiniLM fine-tune (A100, safetensors pinned)
   → optional cross-encoder rerank top-10.
 - [ ] Persist `model_config.json` (feature order + thresholds) next to every
-  artifact; inference asserts alignment [R §3].
+  artifact; inference asserts alignment.
 - **Done when:** val macro-F0.5 beats the skeleton baseline by a logged margin;
   config artifact present.
 
 ### Batch U4 — Decision + inference hygiene (all notebooks Phase 4/5)
 - [ ] **Dual thresholds** (`T_singleton`, `T_match`) tuned on entity-level
-  macro-F0.5, tie-break toward higher precision/threshold [R §11].
+  macro-F0.5, tie-break toward higher precision/threshold.
 - [ ] Inference short-circuit: exact normalized-name matches accepted before
-  scoring; null-likes preserved as no-match rows [R §11].
+  scoring; null-likes preserved as no-match rows.
 - [ ] `metrics.py`-style docstring in the scorer cell stating entity-macro ≠
   sklearn macro (prevents pair-level-metric confusion for future editors).
 - **Done when:** threshold sweep table + singleton precision reported on val;
@@ -336,10 +335,9 @@ brackets. Batches are sequential; items within a batch are parallelizable.
 
 ### Batch U5 — Ops (packaging; plan §Phase 5)
 - [ ] `run_pipeline.py --sample-train --top-k` CLI pattern for the final `code/`
-  bundle reproducibility gate [R §2.1].
-- [ ] Submit early and often (tie-break + credit dynamics) [R §2.3].
+  bundle reproducibility gate.
+- [ ] Submit early and often (tie-break + credit dynamics).
 - [ ] Blocking report ships recall ceiling, recall@K, mean/median/p90 K,
-  reduction ratio, runtime/RAM (already spec'd; PyDI blocking modules as
-  reference if ours stalls).
+  reduction ratio, runtime/RAM.
 - **Done when:** validator `--check-ids` PASS + one-command reproduction from
   the zip on a fresh checkout.

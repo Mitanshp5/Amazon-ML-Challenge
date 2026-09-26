@@ -69,12 +69,12 @@ Next (in order — each unblocks the next):
 - [ ] **6. Submit.** Validator `--check-ids` PASS → leaderboard upload →
   submission zip (`output/`, runnable `code/`, methodology doc).
 
-## Competitive upgrade track (RESEARCH_FINDINGS §9 + §12; plan §6)
+## Upgrade track (plan §6)
 
-Ported in batches; each box checked only with a measured val macro-F0.5 delta:
+Implemented in batches; each box checked only with a measured val macro-F0.5 delta:
 
-- [ ] **U1 normalization:** GLEIF French legal forms, dotted-variant suffixes,
-  EMM abbreviation finders, token-signature keys, ordered cleaning rules.
+- [ ] **U1 normalization:** French legal forms, dotted-variant suffixes,
+  abbreviation finders, token-signature keys, ordered cleaning rules.
 - [ ] **U2 blocking:** reference TF-IDF config in country shards,
   `sparse_dot_topn`, Soundex backfill + freq pruning, per-key caps, eda3
   recall-probe gate (≥95% ceiling).
