@@ -1,0 +1,130 @@
+{
+  "meta": {
+    "country": "US",
+    "n_queries": 300,
+    "pool_size": 6186873,
+    "total_elapsed_sec": 1588.7,
+    "timestamp": "2026-09-26 13:23:28"
+  },
+  "individual_channels": {
+    "joint": {
+      "oracle_macro_f05": 0.992726555851556,
+      "pair_recall": 0.9726156751652503,
+      "mean_k": 100.0,
+      "all_retrieved_rate": 0.9027777777777778,
+      "zero_hit_rate": 0.0,
+      "total_queries": 300,
+      "singletons": 12,
+      "non_singletons": 288,
+      "total_positives": 1059,
+      "retrieved_positives": 1030,
+      "elapsed_sec": 624.4,
+      "vocab": 150000
+    },
+    "name_only": {
+      "oracle_macro_f05": 0.872772133024691,
+      "pair_recall": 0.7450424929178471,
+      "mean_k": 100.0,
+      "all_retrieved_rate": 0.4826388888888889,
+      "zero_hit_rate": 0.06597222222222222,
+      "total_queries": 300,
+      "singletons": 12,
+      "non_singletons": 288,
+      "total_positives": 1059,
+      "retrieved_positives": 789,
+      "elapsed_sec": 250.0,
+      "vocab": 150000
+    },
+    "address_only": {
+      "oracle_macro_f05": 0.9726920563155541,
+      "pair_recall": 0.9301227573182247,
+      "mean_k": 150.0,
+      "all_retrieved_rate": 0.7847222222222222,
+      "zero_hit_rate": 0.010416666666666666,
+      "total_queries": 300,
+      "singletons": 12,
+      "non_singletons": 288,
+      "total_positives": 1059,
+      "retrieved_positives": 985,
+      "elapsed_sec": 275.0,
+      "vocab": 137574
+    },
+    "structured": {
+      "oracle_macro_f05": 0.7642955149305645,
+      "pair_recall": 0.6137865911237016,
+      "mean_k": 55.723333333333336,
+      "all_retrieved_rate": 0.3576388888888889,
+      "zero_hit_rate": 0.1527777777777778,
+      "total_queries": 300,
+      "singletons": 12,
+      "non_singletons": 288,
+      "total_positives": 1059,
+      "retrieved_positives": 650,
+      "elapsed_sec": 0.0
+    }
+  },
+  "cumulative_unions": {
+    "joint_only": {
+      "oracle_macro_f05": 0.992726555851556,
+      "pair_recall": 0.9726156751652503,
+      "mean_k": 100.0,
+      "all_retrieved_rate": 0.9027777777777778,
+      "zero_hit_rate": 0.0,
+      "total_queries": 300,
+      "singletons": 12,
+      "non_singletons": 288,
+      "total_positives": 1059,
+      "retrieved_positives": 1030
+    },
+    "union_joint_name": {
+      "oracle_macro_f05": 0.992726555851556,
+      "pair_recall": 0.9726156751652503,
+      "mean_k": 150.65666666666667,
+      "all_retrieved_rate": 0.9027777777777778,
+      "zero_hit_rate": 0.0,
+      "total_queries": 300,
+      "singletons": 12,
+      "non_singletons": 288,
+      "total_positives": 1059,
+      "retrieved_positives": 1030
+    },
+    "union_all_lexical": {
+      "oracle_macro_f05": 0.9984713203463204,
+      "pair_recall": 0.9952785646836638,
+      "mean_k": 295.57,
+      "all_retrieved_rate": 0.9826388888888888,
+      "zero_hit_rate": 0.0,
+      "total_queries": 300,
+      "singletons": 12,
+      "non_singletons": 288,
+      "total_positives": 1059,
+      "retrieved_positives": 1054
+    },
+    "union_lexical_structured": {
+      "oracle_macro_f05": 0.9984713203463204,
+      "pair_recall": 0.9952785646836638,
+      "mean_k": 331.8433333333333,
+      "all_retrieved_rate": 0.9826388888888888,
+      "zero_hit_rate": 0.0,
+      "total_queries": 300,
+      "singletons": 12,
+      "non_singletons": 288,
+      "total_positives": 1059,
+      "retrieved_positives": 1054
+    },
+    "union_all_incl_duplicate_expansion": {
+      "oracle_macro_f05": 0.9984713203463204,
+      "pair_recall": 0.9952785646836638,
+      "mean_k": 331.9866666666667,
+      "all_retrieved_rate": 0.9826388888888888,
+      "zero_hit_rate": 0.0,
+      "total_queries": 300,
+      "singletons": 12,
+      "non_singletons": 288,
+      "total_positives": 1059,
+      "retrieved_positives": 1054,
+      "added_candidates_total": 43,
+      "elapsed_sec": 0.0
+    }
+  }
+}
