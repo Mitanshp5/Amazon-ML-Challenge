@@ -19,7 +19,7 @@ from rapidfuzz import fuzz
 
 _HOUSE_RE = re.compile(r"\b\d{1,6}[A-Za-z]?\b")
 
-FEATURES = [
+FEATURES_V2 = [
     "tfidf_max", "n_channels",
     "name_wratio", "name_set", "name_sort", "name_partial",
     "name_char_jac", "name_len_ratio", "name_exact_nonempty",
@@ -31,6 +31,9 @@ FEATURES = [
     "source_is_s2",
     "rrf_best",
 ]
+
+FEATURES_DENSE = FEATURES_V2 + ["dense_sim"]
+FEATURES = FEATURES_V2
 
 
 def char_ngrams(s: str, n: int = 3) -> set:
@@ -53,7 +56,7 @@ def _house_unit_nums(addr: str) -> set:
 
 
 def pair_feature_row(q: dict, t: dict, chmap: dict, rrf: float,
-                     src_is_s2: bool) -> list:
+                     src_is_s2: bool, dense_sim: float | None = None) -> list:
     qn, tn = q["name_unicode"], t["name_unicode"]
     qa, ta = q["address_unicode"], t["address_unicode"]
     scores = [s for s, _ in chmap.values()] if chmap else [0.0]
@@ -90,6 +93,8 @@ def pair_feature_row(q: dict, t: dict, chmap: dict, rrf: float,
     out[18] = 1.0 if (qu and tu and not (qu & tu)) else 0.0
     out[19] = 1.0 if (qp and qp == tp) else 0.0
     out[20] = 1.0 if (qp and tp and qp != tp) else 0.0
+    if dense_sim is not None:
+        out.append(float(dense_sim))
     return out
 
 

@@ -1,25 +1,64 @@
 # Amazon ML Challenge: audited implementation plan toward macro F0.5 > 0.98
 
-**Audit date:** 26 September 2026. **Repository snapshot:** `13b3791` (`partial run`).
+**Original audit date:** 26 September 2026. **Historical repository snapshot:** `13b3791` (`partial run`). **Latest revision:** 26 September 2026, after reviewing E02–E09 reports, current working-tree source and saved feature caches; three-device hardware allocation updated from user-provided specifications.
 
 **Purpose:** maximize competitive performance under the supplied rules, using the actual code, all seven data files, saved experiments, model artifacts, and previous plans. This is an implementation plan, not a claim that a new model has been trained or that a leaderboard result has been achieved.
 
 ## 1. The decision that should drive the project
 
-Your strongest saved model configuration reports **0.8886 out-of-fold macro F0.5**. Your current frozen blocking set has **94.1489% pair recall**, but its **exact oracle macro F0.5 is only 0.9793097093** on the existing 20,000-query evaluation sample. I recomputed that ceiling from the saved candidate checkpoints and supplied ground truth. Even perfect classification of those candidates cannot exceed 0.98 on that sample.
+**Current verdict: the reports do not demonstrate that we are on course for >0.98.** Retrieval has improved on small probes, but the new matcher evaluation uses ground-truth-augmented validation candidates. Repair this before interpreting model improvements or spending all three devices on larger versions of the current training scripts.
+
+The original frozen baseline had **94.1489% pair recall**, **0.9793097093 oracle macro F0.5** on an exposed 20,000-query sample, and an older model configuration reporting **0.8886 OOF**. These remain historical evidence, not the current system's scores. Original audit measurements in subsequent sections describe that snapshot unless explicitly updated below.
+
+### 1.1 Latest report assessment and confirmed blockers
+
+| Result | Interpretation after review |
+|---|---|
+| US full-pool union oracle **0.9984713**, recall **99.5279%**, 300 queries | Promising retrieval evidence; larger fixed-probe confirmation needed |
+| India full-pool union oracle **0.9858318**, recall **96.5193%**, 300 queries | Improved retrieval, but only 0.00583 score headroom over the target |
+| India K100 oracle **0.9811691** | Reject as an assumed default: loses 0.0046627 oracle and 17 positives versus untrimmed |
+| E07 reported **0.9050761**; E09 **0.9037012** | Dense experiment regresses by 0.0013749; neither is a clean end-to-end estimate |
+| E08 **0.9224410**, 600 queries | Earlier smaller calibration experiment; not a new comparable high score |
+| Cached scaled validation | **283 injected positive pairs across 229 of 3,000 queries**; natural oracle **0.9909795** becomes **1.0** after injection |
+
+Both matcher scripts append missing ground-truth targets with artificial RRF `0.001` before validation scoring. Read-only cache inspection confirmed every sentinel row is positive. Grouped OOF does not remove this answer-key dependency. Removing injected pairs from old scores is insufficient because training also contains the synthetic shortcut; rebuild clean features and retrain.
+
+Further source-confirmed priorities: training adapters bypass real unit/name-core parsing; channel scores are still mixed in `tfidf_max`; OOF boosting omits an explicit round limit; feature names are not attached to OOF datasets despite schema assertions; caches lack complete input/model/schema identity; the calibration entry point is empty. Current report/source disagreement prevents assuming the latest artifacts can be reproduced from the current tree. E09 adds a cosine feature to existing pairs; it does not complete multilingual retrieval or the originally planned ER cross-encoder.
+
+The detailed evidence, exact cache reconstruction method, report corrections and uncertainty assessment are in [the current progress review](reports/dev_probe/F05_PROGRESS_REVIEW_2026-09-26.md). Preserve the original reports as historical records; this review overrides their unsupported promotion/completion claims.
+
+### 1.2 Revised execution priorities
 
 Therefore, the next implementation should improve **both retrieval and the matcher**, with trustworthy evaluation and a working final inference path. A better transformer, a higher threshold, or more LightGBM trees alone cannot overcome the current candidate ceiling. Conversely, 99% blocking recall alone will not produce a winning matching score.
 
 The priority order is:
 
-1. Freeze and document the current artifacts; establish a fresh, genuinely held-out evaluation protocol.
-2. Fix damaging normalization, candidate truncation, cache identity, and train/test implementation differences.
-3. Add independent name, full-address, structured, and multilingual retrieval channels; measure their union before compressing it.
-4. Train a stronger pooled matcher on substantially more identity groups and realistic hard negatives; optimize decisions on unsampled candidate lists using the exact metric.
-5. Add neural pair scoring and bounded consistency features only where measured error analysis justifies them.
-6. Stream the complete test pipeline, validate both outputs, and reproduce the final package from a clean environment.
+1. **Repair evaluation first:** label-blind natural candidates, separate fit/calibration/comparison roles, exact all-query scoring, cache/schema identities, reproducible entry points. Keep the existing locked holdout untouched.
+2. **Establish clean B0:** wire shared normalization into real feature generation, specify OOF tree limits/names, preserve an untrimmed candidate control, and save per-query/pair scores with natural oracle on the identical population.
+3. **Run complementary work across three devices:** current machine owns integrity and India-focused retrieval; the 16 GB M4 Air owns CPU matcher/features/calibration; the 16 GB i5 HX/RTX 3050 machine owns bounded multilingual/neural challengers.
+4. **Increase retrieval headroom and matching quality together:** target oracle ≥0.995, with >0.99 as a minimum research floor and ≥99% pair recall per labeled country. Measure actual matcher loss; do not promote K100 or dense features by assumption.
+5. **Select on shared evidence:** paired comparisons on the same manifests, separately selected thresholds, uncertainty and resource costs. Recombine winning components, retrain and recalibrate; standalone gains do not add automatically.
+6. **Evaluate the locked finalist and production path:** preserve France uncertainty, then verify all test IDs, exact candidate-to-matcher parity, runtime, both outputs and reproducible packaging.
 
 **No evidence can currently establish that >0.98 is attainable on the private leaderboard, or that it is sufficient to win.** France has no training labels, the public/private split is hidden, and the existing 20,000-query sample has been reused for development. The plan below provides measurable gates toward the target rather than promised improvement percentages.
+
+### 1.3 Three-device plans and fair selection
+
+Read [the shared experiment protocol](reports/experiments/THREE_DEVICE_PROTOCOL.md) before running any device's experiments. It defines disjoint query roles, proposed portable artifacts, resource limits, promotion gates and the dependency order.
+
+| Device | Separate execution plan | Main experiments |
+|---|---|---|
+| Current Windows / Intel Arc machine | [Device 1](reports/experiments/DEVICE_1_LOCAL_BASELINE.md) | Integrity repair, clean B0, address/lexical/structured retrieval, compression, final integration |
+| M4 Air, 10 CPU / 10 GPU cores, 16 GB unified memory | [Device 2](reports/experiments/DEVICE_2_MAC_MATCHER.md) | Boosting curves, field/channel features, training-size/hard-negative experiments, calibration, optional ensembles |
+| 13th-gen i5 HX, RTX 3050, 16 GB RAM | [Device 3](reports/experiments/DEVICE_3_CHALLENGERS.md) | Frozen multilingual pair features, full-pool dense retrieval, domain encoder adaptation, conditional small reranker |
+
+These can make progress concurrently, but clean scored experiments depend on the common repaired evaluator. Run one substantial workload per device initially; 16 GB machines should not launch entire grids in parallel. The third device's exact VRAM and all devices' free disk still require local measurement. The plans contain memory fallbacks and stage gates rather than invented runtime promises.
+
+### 1.4 What would justify saying we are approaching the goal?
+
+On the same natural candidate/query population, report `1 - final = (1 - oracle) + (oracle - final)`. Aim for retrieval loss ≤0.005 and downstream loss <0.015. First demonstrate clean, repeatable 0.95 and 0.97 checkpoints; these are progress markers, not predicted outcomes. Then require a selected pipeline exceeding 0.98 on independent locked evaluation, with uncertainty and country slices reported; a lower 95% bound above 0.98 would be stronger evidence on the labeled distribution. None of these establishes private France performance or guarantees winning.
+
+The latest experiments have different sample sizes and contaminated validation; a calendar-rate extrapolation would be misleading. Do not claim that another fixed number of runs or days will close the gap. If the clean oracle or model frontier plateaus below target, preserve the best verified result and report the shortfall honestly.
 
 ## 2. Scope, evidence, and limits of this audit
 
@@ -758,6 +797,29 @@ Pin exact CPU and GPU dependency sets after clean-install verification. Record t
 
 ## 17. Ordered experiments and promotion decisions
 
+**Current execution order is the three-device revision in §1.2–1.3 and the linked device files.** The E00–E12 table below retains the original experimental intent, not a claim that similarly named reports have completed those gates. In particular, E09's cosine-feature report is not the original E09 cross-encoder experiment.
+
+### Current gate status after the E09 review
+
+| Original milestone | Revised status | Required next evidence |
+|---|---|---|
+| E00 | Historical freeze/splits exist | Extend provenance to current runs and preserve exposure ledger |
+| E01 | Shared functions exist; downstream integration incomplete | Actual training adapter uses parsed fields and guarded missingness |
+| E02/E03 | Promising 300-query full-pool measurements | Fixed larger-probe reproduction and per-country coverage/cost |
+| E04 | GPU inference integration only; multilingual retrieval unproven | Actual complementary full-pool multilingual channel |
+| E05 | Not established by reports | Group-safe domain training versus frozen control |
+| E06 | Frontier measured; K100 promotion rejected | Quality-preserving budget, including actual matcher score |
+| E07 | Report exists; end-to-end evaluation invalidated | Clean natural-candidate baseline and identity/feature curves |
+| E08 | Small contaminated calibration result | Reproducible calibrator, separate calibration/comparison IDs |
+| E09 | Cosine challenger regressed; original reranker not completed | Controlled neural ablation and optional task-trained routed reranker |
+| E10 | Tiny gains on contaminated evaluations | Lower-priority clean ownership/consistency ablation |
+| E11 | Pending | Selected pipeline on independent locked evaluation |
+| E12 | Pending | Complete inference, both outputs, validator and reproducible package |
+
+Before returning to any performance experiment, complete **R0 evaluation integrity** in the current review and **D1-00** in the local-device plan. The next full matcher run should not execute the existing training scripts unchanged.
+
+### Original experiment definitions
+
 | ID | Work | Required artifact | Advance when |
 |---|---|---|---|
 | E00 | Freeze/reproduce historical baseline and new splits | baseline manifest, metric and exposure ledger | all values traceable; no mixed outputs |
@@ -777,6 +839,8 @@ Pin exact CPU and GPU dependency sets after clean-install verification. Record t
 Do not sweep every parameter at once. Change one conceptual component, or a necessary coupled group such as normalization+retraining, and store all recovered/lost links. Select by paired macro improvement first, then robustness/cost. No fixed improvement is assigned to any row.
 
 ### 17.1 First implementation session
+
+**Historical session plan:** much of the shared-package/split scaffolding below is already implemented. Do not restart it blindly. The next session is D1-00/D1-01, with D2/D3 preparing independent work in parallel.
 
 1. Create immutable historical run directory and copy the two model configs, selected candidate manifests and baseline metrics.
 2. Export the exact scorer and normalization functions into shared modules; add checks for the observed Unicode/empty/address failures.

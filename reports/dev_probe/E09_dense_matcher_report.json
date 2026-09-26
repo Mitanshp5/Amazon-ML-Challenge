@@ -1,0 +1,170 @@
+{
+  "meta": {
+    "timestamp": "2026-09-26 18:02:14",
+    "total_runtime_sec": 10.1,
+    "total_pairs_trained": 1501632,
+    "n_features": 24,
+    "n_cpu_cores": 12,
+    "gpu_device": "Intel Arc 140T GPU (16GB)",
+    "best_iteration": 100,
+    "optimal_t_singleton": 0.6,
+    "optimal_t_match": 0.6,
+    "val_macro_f05": 0.9037011975565251,
+    "val_precision": 0.9417586997291102,
+    "val_recall": 0.8562902614626753,
+    "singleton_false_merge_rate": 0.18181818181818182,
+    "resolved_macro_f05": 0.9037178345143385,
+    "resolved_precision": 0.9418568302594561,
+    "resolved_recall": 0.8562902614626753
+  },
+  "top_10_policies": [
+    {
+      "t_singleton": 0.6,
+      "t_match": 0.6,
+      "macro_f05": 0.9037011975565251
+    },
+    {
+      "t_singleton": 0.7,
+      "t_match": 0.65,
+      "macro_f05": 0.903442971262202
+    },
+    {
+      "t_singleton": 0.65,
+      "t_match": 0.65,
+      "macro_f05": 0.9028735268177575
+    },
+    {
+      "t_singleton": 0.7,
+      "t_match": 0.6,
+      "macro_f05": 0.9026588093891369
+    },
+    {
+      "t_singleton": 0.7,
+      "t_match": 0.7,
+      "macro_f05": 0.9025552538249836
+    },
+    {
+      "t_singleton": 0.65,
+      "t_match": 0.6,
+      "macro_f05": 0.9022408800962077
+    },
+    {
+      "t_singleton": 0.6,
+      "t_match": 0.55,
+      "macro_f05": 0.9020625586876868
+    },
+    {
+      "t_singleton": 0.7,
+      "t_match": 0.55,
+      "macro_f05": 0.9009884244885524
+    },
+    {
+      "t_singleton": 0.55,
+      "t_match": 0.55,
+      "macro_f05": 0.9005784317035597
+    },
+    {
+      "t_singleton": 0.65,
+      "t_match": 0.55,
+      "macro_f05": 0.9005308126559407
+    }
+  ],
+  "feature_importances_gain": [
+    {
+      "feature": "rrf_best",
+      "gain": 1909739.8912901878
+    },
+    {
+      "feature": "dense_sim",
+      "gain": 279283.86915016174
+    },
+    {
+      "feature": "house_equal",
+      "gain": 182170.18320083618
+    },
+    {
+      "feature": "addr_word_jac",
+      "gain": 156951.85035657883
+    },
+    {
+      "feature": "addr_set",
+      "gain": 138328.73455381393
+    },
+    {
+      "feature": "name_partial",
+      "gain": 130741.8465013504
+    },
+    {
+      "feature": "house_conflict",
+      "gain": 105615.82696437836
+    },
+    {
+      "feature": "name_sort",
+      "gain": 68092.49878168106
+    },
+    {
+      "feature": "tfidf_max",
+      "gain": 65923.5962524414
+    },
+    {
+      "feature": "name_len_ratio",
+      "gain": 49003.069596767426
+    },
+    {
+      "feature": "name_wratio",
+      "gain": 47522.192377090454
+    },
+    {
+      "feature": "name_set",
+      "gain": 41850.28022146225
+    },
+    {
+      "feature": "addr_sort",
+      "gain": 39383.745381355286
+    },
+    {
+      "feature": "name_core_jac",
+      "gain": 25803.142736434937
+    },
+    {
+      "feature": "n_channels",
+      "gain": 24214.947118759155
+    },
+    {
+      "feature": "name_char_jac",
+      "gain": 19384.001530647278
+    },
+    {
+      "feature": "addr_partial",
+      "gain": 18948.13111257553
+    },
+    {
+      "feature": "source_is_s2",
+      "gain": 12320.157926082611
+    },
+    {
+      "feature": "pin_conflict",
+      "gain": 1037.3554039001465
+    },
+    {
+      "feature": "pin_equal",
+      "gain": 423.22970390319824
+    },
+    {
+      "feature": "name_exact_nonempty",
+      "gain": 222.38099670410156
+    },
+    {
+      "feature": "addr_present_both",
+      "gain": 210.75
+    },
+    {
+      "feature": "unit_equal",
+      "gain": 0.0
+    },
+    {
+      "feature": "unit_conflict",
+      "gain": 0.0
+    }
+  ]
+}
